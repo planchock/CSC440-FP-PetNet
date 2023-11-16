@@ -1,0 +1,24 @@
+services:
+  frontend:
+    build:
+      context: ./app/
+    ports:
+      - 3000:3000
+    volumes:
+      - ./app/src:/app/src
+  
+  server:
+    build:
+      context: ./server/
+    ports:
+      - 3001:3001
+    volumes:
+      - ./server:/app
+
+  proxy:
+    image: nginx:latest
+    restart: unless-stopped
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/templates/default.conf.template
+    ports:
+      - "80:80"
