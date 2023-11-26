@@ -13,11 +13,3 @@ app.get("/", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });
-
-app.get('/CreateAccount', (req, res) => {
-  const username = req.query.username;
-  const password = req.query.password;
-  console.log('Received username:', username);
-  console.log('Received password:', password);
-  res.status(200).json({ message: 'Usename and Password updated' });
-});
