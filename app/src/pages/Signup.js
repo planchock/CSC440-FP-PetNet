@@ -16,11 +16,6 @@ function Signup() {
       return;
     }
 
-    if (username.length < 6) {
-      alert("Username must be at least 6 characters long.");
-      return;
-    }
-
     if (password.length < 8) {
       alert("Password must be at least 8 characters long.");
       return;
@@ -31,7 +26,29 @@ function Signup() {
       return;
     }
 
-    // TODO: API CALL TO CREATION
+    fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        firstName,
+        lastName,
+        username,
+        password,
+        confirmPassword: confirm, 
+      }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          alert("Account created successfully.");
+          window.location.href = "/";
+        } else {
+          alert("Invalid username or password.");
+        }
+      }).catch((err) => {
+        alert("Invalid username or password.");
+      });
   };
 
   return (

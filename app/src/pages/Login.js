@@ -13,8 +13,8 @@ function Login() {
       return;
     }
 
-    if (username.length < 6) {
-      alert("Username must be at least 6 characters long.");
+    if (username.length < 3) {
+      alert("Username must be at least 3 characters long.");
       return;
     }
 
@@ -23,7 +23,23 @@ function Login() {
       return;
     }
 
-    // TODO: API CALL TO LOGIN
+    fetch("/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          window.location.href = "/";
+        } else {
+          alert("Invalid username or password.");
+        }
+      })
+      .catch((err) => {
+        alert("Invalid username or password.");
+      });
   };
 
   return (
@@ -47,7 +63,7 @@ function Login() {
             />
             <button
               className="block p-2 mt-4 text-xl font-bold text-white w-[17.25rem] rounded-lg drop-shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800"
-              onClick={signup}
+              onClick={() => signup()}
             >
               Log In
             </button>
