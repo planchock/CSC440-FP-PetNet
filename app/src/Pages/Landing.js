@@ -37,11 +37,7 @@ function Landing() {
             </a>
           </div>
         </div>
-        <img
-          src="https://static.vecteezy.com/system/resources/previews/018/871/732/original/cute-and-happy-dog-png.png"
-          height={300}
-          width={500}
-        />
+        <img src="/dog.webp" height={300} width={500} />
       </div>
     </div>
   );
