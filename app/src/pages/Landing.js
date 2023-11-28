@@ -1,8 +1,16 @@
 import "tailwindcss/tailwind.css";
 import { Link } from "react-router-dom";
 import Header from "../components/Header";
+import { useAuth } from "../components/AuthProvider";
 
 function Landing() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isAuthenticated && !isLoading) {
+    // redirect to feed
+    window.location.href = "/feed";
+  }
+
   return (
     <Header>
       <div className="flex items-center justify-center max-w-5xl mx-auto">
@@ -40,7 +48,7 @@ function Landing() {
               </Link>
             </div>
           </div>
-          <img src="/dog.webp" height={300} width={450} />
+          <img src="/dog.webp" width={450} className="w-[450px] h-[750px]" />
         </div>
       </div>
     </Header>
