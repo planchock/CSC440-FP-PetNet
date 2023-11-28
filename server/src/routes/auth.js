@@ -11,19 +11,24 @@ router.post("/login", async (req, res) => {
   if (!req.body.username || !req.body.password) {
     return res.status(400).json({ msg: "Missing required information" });
   }
-  
+
   try {
-    const result = await db.query("SELECT * FROM user WHERE username = ?", [req.body.username]);
+    const result = await db.query("SELECT * FROM user WHERE username = ?", [
+      req.body.username.toLowerCase(),
+    ]);
     if (result.results.length === 0) {
       return res.status(400).json({ msg: "Invalid username or password" });
     }
-    
+
     const user = result.results[0];
     const passwordHash = hashPassword(req.body.password, user.salt);
-    
+
     if (passwordHash !== user.password) {
       return res.status(400).json({ msg: "Invalid username or password" });
     }
+
+    user.password = undefined;
+    user.salt = undefined;
 
     const token = jwt.sign({ user }, secret, { expiresIn: "1h" });
     return res
@@ -37,7 +42,6 @@ router.post("/login", async (req, res) => {
     return res.status(500).json({ msg: "An error occurred" });
   }
 });
-
 
 router.post("/register", (req, res) => {
   if (
@@ -57,8 +61,17 @@ router.post("/register", (req, res) => {
   }
   const salt = generateSalt();
   const passwordHash = hashPassword(req.body.password, salt);
-  
-  db.query("INSERT INTO user (first_name, last_name, username, password, salt) VALUES (?, ?, ?, ?, ?)", [req.body.firstName, req.body.lastName, req.body.username, passwordHash, salt])
+
+  db.query(
+    "INSERT INTO user (first_name, last_name, username, password, salt) VALUES (?, ?, ?, ?, ?)",
+    [
+      req.body.firstName,
+      req.body.lastName,
+      req.body.username.toLowerCase(),
+      passwordHash,
+      salt,
+    ]
+  )
     .then((result) => {
       return res.status(200).json({ msg: "Account created successfully" });
     })
