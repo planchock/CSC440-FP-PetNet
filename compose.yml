@@ -5,6 +5,7 @@ services:
     ports:
       - 3000:3000
     volumes:
+      - /app/node_modules
       - ./app/src:/app/src
   
   server:
@@ -13,7 +14,8 @@ services:
     ports:
       - 3001:3001
     volumes:
-      - ./server:/app
+      - /server/node_modules
+      - ./server/src:/server/src
     env_file:
       - .env
 
