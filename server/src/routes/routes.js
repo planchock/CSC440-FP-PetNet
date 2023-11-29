@@ -5,8 +5,12 @@ const authRouter = require("./auth");
 const postRouter = require("./posts");
 const petRouter = require("./pet");
 const groupRouter = require("./group");
+const userRouter = require("./user");
+const feedRouter = require("./feed");
 
 router.use("/auth", authRouter);
+router.use("/user", userRouter);
+router.use("/feed", feedRouter);
 
 router.use(postRouter);
 router.use(petRouter);
