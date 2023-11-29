@@ -26,7 +26,7 @@ function Signup() {
       return;
     }
 
-    fetch("/api/auth/register", {
+    fetch("http://localhost:3001/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

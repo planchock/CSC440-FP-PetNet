@@ -23,7 +23,7 @@ function Login() {
       return;
     }
 
-    fetch("/api/auth/login", {
+    fetch("http://localhost:3001/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
