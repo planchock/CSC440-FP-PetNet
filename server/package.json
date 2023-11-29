@@ -4,6 +4,7 @@
     "lint": "prettier . --write"
   },
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "eslint": "^8.53.0",
