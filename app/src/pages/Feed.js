@@ -148,6 +148,9 @@ function Feed() {
               </div>
 
               <div className="mb-4 text-center">
+                <div className="font-bold">
+                  {post.caption}
+                </div>
                 {/* {post.media && (
                   <img
                     src={URL.createObjectURL(post.media)}
@@ -155,8 +158,8 @@ function Feed() {
                     className="w-full h-40 object-cover mb-2 rounded-md"
                   />
                 )} */}
-                <p>{post.text}</p>
               </div>
+              <p>{post.text}</p>
 
               {post.group_name && (
                 <div className="text-sm text-gray-500 ml-auto">
