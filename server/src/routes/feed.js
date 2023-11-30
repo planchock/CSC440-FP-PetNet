@@ -78,4 +78,32 @@ router.get("/groups", auth, async (req, res) => {
   
 });
 
+router.get("/comments/:post_id", auth, async (req, res) => {
+  const userId = req.user.user_id;
+  const postId = req.params.post_id; 
+
+  if (!userId) {
+    return res.status(400).json({ msg: "No signed-in user" });
+  }
+
+  try {
+    const commentResults = await db.query(
+      "SELECT comment.*, user.username FROM comment INNER JOIN user ON comment.user_id = user.user_id WHERE comment.post_id = ?",
+      [postId]
+    );  
+    // Extract group IDs from the result
+    const comments = commentResults.results;
+  
+    if (comments.length === 0) {
+      // No groups found for the user
+      return res.status(200).json([]);
+    }
+  
+    return res.status(200).json(comments);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: "An error occurred" });
+  }
+});
+
 module.exports = router;

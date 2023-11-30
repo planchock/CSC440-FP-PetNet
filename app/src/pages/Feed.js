@@ -7,6 +7,8 @@ function Feed() {
   const { isAuthenticated, isLoading } = useAuth();
   const [posts, setPosts] = useState([]);
   const [isGroupDropdownOpen, setGroupDropdownOpen] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [comments, setComments] = useState([]);
 
   const [groupInfo, setGroupInfo] = useState({
     group_id: '',
@@ -21,6 +23,21 @@ function Feed() {
 
   const toggleGroupDropdown = () => {
     setGroupDropdownOpen(!isGroupDropdownOpen);
+  };
+
+  const openCommentsModal = async (selectedPostId) => {
+    try {
+      const response = await fetch(`/api/feed/comments/${selectedPostId}`);
+      const commentsData = await response.json();
+      setComments(commentsData);
+      setShowComments(true);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+
+  const closeCommentsModal = () => {
+    setShowComments(false);
   };
 
   useEffect(() => {
@@ -166,10 +183,47 @@ function Feed() {
                   in group: {post.group_name}
                 </div>
               )}
+
+              <div className="flex items-center justify-between ma-4">
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  onClick={() => openCommentsModal(post.post_id)}
+                >
+                  See Comments
+                </button>
+                <button
+                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  onClick={() => console.log("Leave a comment")}
+                >
+                  Leave a comment
+                </button>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* Show Comments Modal */}
+      {showComments && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75">
+          <div className="bg-white p-4 rounded-md">
+            <button
+              className="absolute top-2 right-2 text-gray-600"
+              onClick={closeCommentsModal}
+            >
+              X
+            </button>
+            <h2 className="text-xl font-bold mb-4">Comments</h2>
+            <ul>
+              {comments.map((comment, index) => (
+                <li key={index} className="mb-2">
+                  <strong>{comment.username}:</strong> {comment.comment_text}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
