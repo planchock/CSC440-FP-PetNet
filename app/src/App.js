@@ -18,6 +18,8 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/post" element={<Post />} />
             <Route path="/feed" element={<Feed />} />
+            <Route path="/groups" element={<h1>group page</h1>} />
+            <Route path="/profile" element={<h1>profile page</h1>} />
           </Routes>
         </Router>
       </AuthProvider>
