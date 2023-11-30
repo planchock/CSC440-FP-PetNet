@@ -208,7 +208,7 @@ function Feed() {
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75">
           <div className="bg-white p-4 rounded-md">
             <button
-              className="absolute top-2 right-2 text-gray-600"
+              className="float-right text-gray-600"
               onClick={closeCommentsModal}
             >
               X

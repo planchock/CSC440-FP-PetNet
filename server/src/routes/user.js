@@ -11,7 +11,7 @@ router.get("/current", auth, async (req, res) => {
   }
 
   try {
-    const userInfo = await db.query("SELECT * FROM user WHERE user_id = ?", [userId]);
+    const userInfo = await db.query("SELECT user_id, first_name, last_name, username, profile_pic FROM user WHERE user_id = ?", [userId]);
     const user = userInfo.results;
     
     if (user.length === 0) {
