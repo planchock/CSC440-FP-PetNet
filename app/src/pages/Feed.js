@@ -32,13 +32,7 @@ function Feed() {
   
     fetchDropdownContent();
   }, []);
-  
 
-  useEffect(() => {
-    if (isAuthenticated && !isLoading) {
-      getFeed();
-    }
-  }, [isAuthenticated, isLoading]);
 
   const getFeed = () => {
     fetch("/api/feed/current", {
@@ -56,11 +50,30 @@ function Feed() {
       })
       .then((data) => {
         setPosts(data);
+        //group filter
+        filterPosts();
       })
       .catch((err) => {
         console.error(err);
         alert("Error fetching feed.");
       });
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && !isLoading) {
+      getFeed();
+    }
+  }, [isAuthenticated, isLoading, groupInfo.group_id]);
+
+  const filterPosts = () => {
+    // If no group is selected, show all posts
+    if (!groupInfo.group_id) {
+      return;
+    } else {
+      // Filter posts based on selected group
+      const filteredPosts = posts.filter((post) => post.group_id === groupInfo.group_id);
+      setPosts(filteredPosts);
+    }
   };
 
   return (
