@@ -24,9 +24,13 @@ function Post() {
         group_id: '',
         group_name: '',
     });
-    
+
     const [pets, setPets] = useState([]);
     const [groups, setGroups] = useState([]);
+
+
+    const [blob, setTestBlob] = useState(null);
+    const [testImageUrl, setTestImageUrl] = useState(null);
 
     const toggleGroupDropdown = () => {
         setGroupDropdownOpen(!isGroupDropdownOpen);
@@ -41,8 +45,6 @@ function Post() {
             const response = await fetch('/api/pets');
             const data = await response.json();
             setPets(data);
-            console.log("pets", data);
-
         } catch (error) {
             console.error(error.message);
         }
@@ -51,8 +53,6 @@ function Post() {
             const response = await fetch('/api/groups');
             const data = await response.json();
             setGroups(data);
-            console.log("groups", groups);
-
         } catch (error) {
             console.error(error.message);
         }
@@ -61,7 +61,6 @@ function Post() {
     }
 
     const handleMedia = (event) => {
-        console.log("EVENT:", event);
         const file = event.target.files[0];
 
         if (file) {
@@ -69,7 +68,6 @@ function Post() {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const imageBlob = new Blob([reader.result], { type: file.type });
-                    console.log('IMAGEBLOB:', imageBlob);
                     setMediaBlob(imageBlob);
                 };
                 reader.readAsArrayBuffer(file);
@@ -108,9 +106,35 @@ function Post() {
 
     }
 
+
+    const fetchRecentImage = async () => {
+        try {
+            const response = await fetch('/api/image'); // Replace with your API endpoint
+            const data = await response.blob(); // Get the Blob data
+
+            const url = URL.createObjectURL(new Blob([data]));
+            let tmp = new Blob([data]);
+            setTestImageUrl(url);
+            return () => URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error fetching image data:', error.message);
+        }
+    };
+
+
     return (
 
         <Header>
+            <div>
+                {testImageUrl ? (
+                    <img src={testImageUrl} alt="Image" />
+                ) : (
+                    <p>No image to display</p>
+                )}
+            </div>
+            <button onClick={fetchRecentImage}>
+                get image
+            </button>
             <div className="w-full">
                 <div className="flex justify-center">
                     <span className="text-5xl text-white"><b>Create Post</b></span>
@@ -142,7 +166,7 @@ function Post() {
                                             {pet.name}
                                         </button>
                                     ))}
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setPetInfo({pet_id: '', name: ''})}>
+                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setPetInfo({ pet_id: '', name: '' })}>
                                         None
                                     </button>
 
@@ -169,7 +193,7 @@ function Post() {
                                         </button>
                                     ))}
 
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupInfo({group_id: '', group_name: ''})}>
+                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupInfo({ group_id: '', group_name: '' })}>
                                         None
                                     </button>
                                 </div>

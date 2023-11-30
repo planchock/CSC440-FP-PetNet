@@ -24,6 +24,18 @@ class PostDAO {
             return null;
         }
     }
+
+    async getRecentImage() {
+        try {
+            const {results} = await db.query(
+                'SELECT media_url FROM media ORDER BY media_id DESC LIMIT 1'
+            );
+            return results[0].media_url;
+        } catch(err) {
+            console.error(err);
+            return null;
+        }
+    }
 }
 
 
