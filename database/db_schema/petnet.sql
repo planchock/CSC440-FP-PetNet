@@ -55,9 +55,10 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 CREATE TABLE IF NOT EXISTS `post` (
   `post_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `media_id` int(11) unsigned,
-  `pet_id` int(11) unsigned NOT NULL,
+  `pet_id` int(11) unsigned,
   `group_id` int(11) unsigned,
-  `text` varchar(255),
+  `text` TEXT NOT NULL,
+  `caption` VARCHAR(255) NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`post_id`),
   CONSTRAINT `FK_POSTER_USER` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
