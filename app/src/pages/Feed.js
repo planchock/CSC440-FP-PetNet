@@ -9,6 +9,9 @@ function Feed() {
   const [isGroupDropdownOpen, setGroupDropdownOpen] = useState(false);
   const [showComments, setShowComments] = useState(false);
   const [comments, setComments] = useState([]);
+  const [showWriteComment, setShowWriteComment] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [postToCommentOn, setPostToCommentOn] = useState(null);
 
   const [groupInfo, setGroupInfo] = useState({
     group_id: '',
@@ -36,10 +39,47 @@ function Feed() {
     }
   };
 
+  //set the post we are going to comment on
+  const openWriteCommentModal = (selectedPostId) => {
+    setShowWriteComment(true);
+    setPostToCommentOn(selectedPostId);
+  };
+
+  //submit function for making a comment
+  const writeComment = () => {
+    fetch(`/api/feed/comments/${postToCommentOn}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        text: newComment,
+      }),
+    })
+    .then((res) => {
+      if (res.status === 200) {
+        alert("Comment created successfully.");
+      } else {
+        alert("Invalid comment.");
+      }
+    }).catch((err) => {
+      alert("Invalid comment.");
+    });
+
+    setNewComment("");
+    setPostToCommentOn(null);
+    setShowWriteComment(false);
+  };
+
   const closeCommentsModal = () => {
     setShowComments(false);
   };
 
+  const closeWriteCommentModal = () => {
+    setShowWriteComment(false);
+  };
+
+  //fill up group filter
   useEffect(() => {
     const fetchDropdownContent = async () => {
       try {
@@ -97,6 +137,7 @@ function Feed() {
     }
   };
 
+  //get user info to fill in header
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -184,7 +225,7 @@ function Feed() {
                 </div>
               )}
 
-              <div className="flex items-center justify-between ma-4">
+              <div className="flex items-center justify-between mt-4">
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded"
                   onClick={() => openCommentsModal(post.post_id)}
@@ -193,7 +234,7 @@ function Feed() {
                 </button>
                 <button
                   className="bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={() => console.log("Leave a comment")}
+                  onClick={() => openWriteCommentModal(post.post_id)}
                 >
                   Leave a comment
                 </button>
@@ -224,6 +265,33 @@ function Feed() {
           </div>
         </div>
       )}
+
+      {/* Show Write Comment Modal */}
+      {showWriteComment && (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75">
+          <div className="bg-white p-4 rounded-md">
+            <button
+              className="float-right text-gray-600"
+              onClick={closeWriteCommentModal}
+            >
+              X
+            </button>
+            <h2 className="text-xl font-bold mb-4">Write a comment</h2>
+            <input
+              type="text"
+              placeholder="comment here"
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <button
+              className="bg-blue-500 text-white px-4 py-2 rounded"
+              onClick={() => writeComment()}
+            >
+              Submit
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
