@@ -3,9 +3,9 @@ const Post = require('./models/Post');
 class PostDAO {
     async sendPost(post, userId, media) {
         try {
-            if (media != '') {
+            if (media != '' && media !== null) {
                 const {results: rows} = await db.query(
-                    'INSERT INTO media ?', [media]
+                    'INSERT INTO media (media_url) VALUES(?)', [media]
                 );
                 post.media_id = rows.insertId;
             }
