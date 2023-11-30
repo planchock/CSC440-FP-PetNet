@@ -16,6 +16,4 @@ router.use(postRouter);
 router.use(petRouter);
 router.use(groupRouter);
 
-
-
 module.exports = router;
