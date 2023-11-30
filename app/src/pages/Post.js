@@ -16,26 +16,45 @@ function Post() {
     const [content, setContent] = useState("");
     const [media, setMedia] = useState("");
 
-    const [petId, setPetId] = useState("");
-    const [groupId, setGroupId] = useState("");
+    const [pet_id, setPetId] = useState("");
+    const [group_id, setGroupId] = useState("");
+    // Declare pets and groups as state variables
+    const [pets, setPets] = useState([]);
+    const [groups, setGroups] = useState([]);
 
     const toggleGroupDropdown = () => {
         setGroupDropdownOpen(!isGroupDropdownOpen);
     };
-
+    useEffect(() => {
+        fetchDropdownContent();
+    }, []);
 
     const fetchDropdownContent = async () => {
 
         try {
-            const response = await fetch('/api/');
+            const response = await fetch('/api/pets');
             const data = await response.json();
-            
+            setPets(data);
+            console.log("pets", pets);
+
         } catch (error) {
             console.error(error.message);
         }
 
-        
+        try {
+            const response = await fetch('/api/groups');
+            const data = await response.json();
+            setGroups(data);
+            console.log("groups", groups);
+
+        } catch (error) {
+            console.error(error.message);
+        }
+
+
     }
+
+
 
 
 
@@ -47,7 +66,7 @@ function Post() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ caption, content, petId, groupId, media}),
+            body: JSON.stringify({ caption, content, pet_id, group_id, media }),
         })
             .then((res) => {
                 if (res.status === 200) {
@@ -82,12 +101,12 @@ function Post() {
 
                         <div className="px-6">
                             <button onClick={togglePetDropdown} className="bg-blue-500 text-white px-4 py-2 rounded">
-                                {petId ? petId : 'Options'}
+                                {pet_id ? pet_id : 'Pet'}
                             </button>
 
                             {isPetDropdownOpen && (
                                 <div className="absolute mt-2 bg-white border rounded">
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setPetId("goodbye")}>
+                                    {/* <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setPetId("goodbye")}>
                                         Option 1
                                     </button>
                                     <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setPetId("hello")}>
@@ -95,7 +114,20 @@ function Post() {
                                     </button>
                                     <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setPetId(e.target.value)}>
                                         Option 3
+                                    </button> */}
+                                    {pets.map((pet) => (
+                                        <button
+                                            key={pet.pet_id}
+                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                            onClick={() => setPetId(pet.pet_id)}
+                                        >
+                                            {pet.name}
+                                        </button>
+                                    ))}
+                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setPetId(null)}>
+                                        None
                                     </button>
+
                                 </div>
                             )}
                         </div>
@@ -104,20 +136,24 @@ function Post() {
 
                         <div className="px-6">
                             <button onClick={toggleGroupDropdown} className="bg-blue-500 text-white px-4 py-2 rounded">
-                                {groupId ? groupId : "group"}
+                                {group_id ? group_id : "group"}
                             </button>
 
                             {isGroupDropdownOpen && (
                                 <div className="absolute mt-2 bg-white border rounded">
-                                    <a href="#" className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setGroupId("1")}>
-                                        Option 1
-                                    </a>
-                                    <a href="#" className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setGroupId("2")}>
-                                        Option 2
-                                    </a>
-                                    <a href="#" className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={(e) => setGroupId("3")}>
-                                        Option 3
-                                    </a>
+                                    {groups.map((group) => (
+                                        <button
+                                            key={group.group_name}
+                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                                            onClick={() => setGroupId(group.group_id)}
+                                        >
+                                            {group.group_name}
+                                        </button>
+                                    ))}
+
+                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupId(null)}>
+                                        None
+                                    </button>
                                 </div>
                             )}
                         </div>

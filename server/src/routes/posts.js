@@ -16,7 +16,7 @@ router.post("/post", auth, (req, res) => {
 
     }
     postDAO.sendPost(request, req.user.user_id, req.body.media).then(post => {
-        return res.status(200);
+        return res.status(200).json({msg: "success!"});
     }).catch(err => {
         console.error(err);
         return res.status(500).json({error: "internal server error"})
