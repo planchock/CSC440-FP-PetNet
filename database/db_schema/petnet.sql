@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `media` (
   `media_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `media_url` BLOB NOT NULL,
+  `media_url` LONGBLOB NOT NULL,
   PRIMARY KEY (`media_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
