@@ -36,7 +36,7 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
 
   try {
     const pictureInfo = await db.query(
-      "SELECT media.media_url FROM media INNER JOIN user ON user.profile_pic = media.media_id WHERE user.user_id = ?",
+      "SELECT media_url FROM media INNER JOIN user ON user.profile_pic = media.media_id WHERE user.user_id = ?",
       [user]
     );    
     const picture = pictureInfo.results[0].media_url;

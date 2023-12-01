@@ -7,7 +7,7 @@ function FeedHeader({ username, user_media }) {
     <div className="z-10 max-w-5xl mx-auto flex items-center justify-between py-4 mb-4 bg-blue-500">
       {/* Logo */}
       <Link to="/" className="block">
-        <h1 className="text-3xl font-extrabold text-pink-400">Pet<span className="text-white">Net</span></h1>
+        <h1 className="text-3xl ml-2 font-extrabold text-pink-400">Pet<span className="text-white">Net</span></h1>
       </Link>
 
       {/* Navigation Buttons */}
@@ -17,7 +17,7 @@ function FeedHeader({ username, user_media }) {
       </div>
 
       {/* User Info */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 mr-2">
         <Link to="/profile" className="text-white hover:text-gray-300">@{username}</Link>
         <img
           src={user_media}

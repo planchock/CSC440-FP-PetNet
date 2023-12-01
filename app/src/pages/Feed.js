@@ -12,7 +12,7 @@ function Feed() {
   const [showWriteComment, setShowWriteComment] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [postToCommentOn, setPostToCommentOn] = useState(null);
-  const [profilePic, setProfilePic] = useState("");
+  const [profilePic, setProfilePic] = useState(null);
 
   const [groupInfo, setGroupInfo] = useState({
     group_id: '',
@@ -20,9 +20,8 @@ function Feed() {
   });
   const [groups, setGroups] = useState([]);
 
-    const [userInfo, setUserInfo] = useState({
+  const [userInfo, setUserInfo] = useState({
     username: '',
-    user_media: '',
   });
 
   const toggleGroupDropdown = () => {
@@ -110,9 +109,14 @@ function Feed() {
           throw new Error("Error fetching feed.");
         }
       })
-      .then((data) => {
-        setPosts(data);
-        //group filter
+      .then(async (data) => {
+        // Set posts with dynamic image URLs
+        const postsWithImages = await Promise.all(data.map(async (post) => ({
+          ...post,
+          mediaUrl: post.media ? await fetchPostImage(post.post_id) : null,
+          userMedia: post.user_media ? await fetchProfilePic(post.user_id) : null,
+        })));
+        setPosts(postsWithImages);
         filterPosts();
       })
       .catch((err) => {
@@ -146,9 +150,11 @@ function Feed() {
         const userData = await response.json();
         setUserInfo({
           username: userData.username,
-          user_media: userData.profile_pic,
         });
-        getProfilePic(userData.user_id);
+        const picture = await fetch('/api/user/profile-picture/'+userData.user_id);
+        const pictureData = await picture.blob();
+        const url = URL.createObjectURL(new Blob([pictureData]));
+        setProfilePic(url);
       } catch (error) {
         console.error(error.message);
       }
@@ -157,14 +163,27 @@ function Feed() {
     fetchUserInfo();
   }, []);
 
-  const getProfilePic = async (userId) => {
+  const fetchPostImage = async (postId) => {
     try {
-      const response = await fetch(`/api/user/profile-picture/${userId}`);
+      const response = await fetch(`/api/feed/picture/${postId}`); 
       const data = await response.blob();
-      const url = URL.createObjectURL(data);
-      setProfilePic(url);
+      const url = URL.createObjectURL(new Blob([data]));
+      return url;
     } catch (error) {
-      console.error("An error occurred while fetching the profile picture:", error.message);
+      console.error('Error fetching image data:', error.message);
+      return null
+    }
+  };
+
+  const fetchProfilePic = async (userId) => {
+    try {
+      const response = await fetch(`/api/user/profile-picture/${userId}`); 
+      const data = await response.blob();
+      const url = URL.createObjectURL(new Blob([data]));
+      return url;
+    } catch (error) {
+      console.error('Error fetching image data:', error.message);
+      return null
     }
   };
 
@@ -206,8 +225,8 @@ function Feed() {
             >
               <div className="flex items-center mb-4">
                 <img
-                  src={post.user_media}
-                  alt="User Media"
+                  src={`/api/user/profile-picture/${post.user_id}`}
+                  alt="User Profile Pic"
                   className="w-10 h-10 rounded-full mr-2"
                 />
                 <div>
@@ -224,13 +243,13 @@ function Feed() {
                 </div>
                 {post.media && (
                   <img
-                    src={URL.createObjectURL(post.media)}
+                    src={`/api/feed/picture/${post.post_id}`}
                     alt="Post Media"
                     className="w-full h-40 object-cover mb-2 rounded-md"
                   />
                 )}
+                <p>{post.text}</p>
               </div>
-              <p>{post.text}</p>
 
               {post.group_name && (
                 <div className="text-sm text-gray-500 ml-auto">

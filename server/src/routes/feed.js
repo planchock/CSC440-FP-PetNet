@@ -138,5 +138,28 @@ router.post("/comments/:post_id", auth, (req, res) => {
   });
 });
 
+router.get("/picture/:post", auth, async (req, res) => {
+  const userId = req.user.user_id;
+
+  if (!userId) {
+    return res.status(400).json({ msg: "No signed-in user" });
+  }
+
+  const postId = req.params.post; 
+
+  try {
+    const pictureInfo = await db.query(
+      "SELECT media_url FROM media INNER JOIN post ON post.media_id = media.media_id WHERE post.post_id = ?",
+      [postId]
+    );    
+    const picture = pictureInfo.results[0].media_url;
+    
+    return res.status(200).send(picture);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: "An error occurred" });
+  }
+});
+
 
 module.exports = router;
