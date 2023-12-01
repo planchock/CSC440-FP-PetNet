@@ -29,9 +29,6 @@ function Post() {
     const [groups, setGroups] = useState([]);
 
 
-    const [blob, setTestBlob] = useState(null);
-    const [testImageUrl, setTestImageUrl] = useState(null);
-
     const toggleGroupDropdown = () => {
         setGroupDropdownOpen(!isGroupDropdownOpen);
     };
@@ -77,6 +74,10 @@ function Post() {
     }
 
     const handleSubmit = () => {
+        if (!caption || !content) {
+            alert("All posts must have a caption and body.");
+            return;
+        }
 
         const formData = new FormData();
         formData.append('caption', caption);
@@ -87,54 +88,25 @@ function Post() {
 
         fetch("/api/post", {
             method: "POST",
-            // headers: {
-            //     "Content-Type": "application/json",
-            // },
-            // body: JSON.stringify({ caption, content, pet_id: pet_id || null, group_id: group_id || null, media: media || null }),
             body: formData
         })
             .then((res) => {
                 if (res.status === 200) {
                     console.log("success");
+                    window.location.href = "/feed";
                 } else {
-                    alert("failure bot");
+                    alert("Error creating post");
                 }
             })
             .catch((err) => {
-                alert("failure");
+                alert("error creating post");
             });
 
     }
 
-
-    const fetchRecentImage = async () => {
-        try {
-            const response = await fetch('/api/image'); // Replace with your API endpoint
-            const data = await response.blob(); // Get the Blob data
-
-            const url = URL.createObjectURL(new Blob([data]));
-            let tmp = new Blob([data]);
-            setTestImageUrl(url);
-            return () => URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error fetching image data:', error.message);
-        }
-    };
-
-
     return (
 
         <Header>
-            <div>
-                {testImageUrl ? (
-                    <img src={testImageUrl} alt="Image" />
-                ) : (
-                    <p>No image to display</p>
-                )}
-            </div>
-            <button onClick={fetchRecentImage}>
-                get image
-            </button>
             <div className="w-full">
                 <div className="flex justify-center">
                     <span className="text-5xl text-white"><b>Create Post</b></span>
