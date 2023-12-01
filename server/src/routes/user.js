@@ -25,4 +25,27 @@ router.get("/current", auth, async (req, res) => {
   }
 });
 
+router.get("/profile-picture/:user", auth, async (req, res) => {
+  const userId = req.user.user_id;
+
+  if (!userId) {
+    return res.status(400).json({ msg: "No signed-in user" });
+  }
+
+  const user = req.params.user; 
+
+  try {
+    const pictureInfo = await db.query(
+      "SELECT media.media_url FROM media INNER JOIN user ON user.profile_pic = media.media_id WHERE user.user_id = ?",
+      [user]
+    );    
+    const picture = pictureInfo.results[0].media_url;
+    
+    return res.status(200).send(picture);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: "An error occurred" });
+  }
+});
+
 module.exports = router;

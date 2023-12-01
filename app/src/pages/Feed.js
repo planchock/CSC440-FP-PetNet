@@ -12,6 +12,7 @@ function Feed() {
   const [showWriteComment, setShowWriteComment] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [postToCommentOn, setPostToCommentOn] = useState(null);
+  const [profilePic, setProfilePic] = useState("");
 
   const [groupInfo, setGroupInfo] = useState({
     group_id: '',
@@ -147,6 +148,7 @@ function Feed() {
           username: userData.username,
           user_media: userData.profile_pic,
         });
+        getProfilePic(userData.user_id);
       } catch (error) {
         console.error(error.message);
       }
@@ -155,9 +157,20 @@ function Feed() {
     fetchUserInfo();
   }, []);
 
+  const getProfilePic = async (userId) => {
+    try {
+      const response = await fetch(`/api/user/profile-picture/${userId}`);
+      const data = await response.blob();
+      const url = URL.createObjectURL(data);
+      setProfilePic(url);
+    } catch (error) {
+      console.error("An error occurred while fetching the profile picture:", error.message);
+    }
+  };
+
   return (
     <div>
-      <FeedHeader username={userInfo.username} user_media={userInfo.user_media}/>
+      <FeedHeader username={userInfo.username} user_media={profilePic}/>
       <div className="max-w-4xl mx-auto flex">
         {/* Left Side - Group Selection */}
         <div className="w-1/5 px-6">
@@ -209,13 +222,13 @@ function Feed() {
                 <div className="font-bold">
                   {post.caption}
                 </div>
-                {/* {post.media && (
+                {post.media && (
                   <img
                     src={URL.createObjectURL(post.media)}
                     alt="Post Media"
                     className="w-full h-40 object-cover mb-2 rounded-md"
                   />
-                )} */}
+                )}
               </div>
               <p>{post.text}</p>
 
