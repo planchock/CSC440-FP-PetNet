@@ -1,8 +1,10 @@
 import "tailwindcss/tailwind.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
+import Post from "./pages/Post";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Feed from "./pages/Feed";
 import AuthProvider from "./components/AuthProvider";
 
 function App() {
@@ -14,7 +16,10 @@ function App() {
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/feed" element={<h1>Feed Placeholder</h1>} />
+            <Route path="/post" element={<Post />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/groups" element={<h1>group page</h1>} />
+            <Route path="/profile" element={<h1>profile page</h1>} />
           </Routes>
         </Router>
       </AuthProvider>
