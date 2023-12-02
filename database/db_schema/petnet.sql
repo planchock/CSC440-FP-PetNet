@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `media` (
   `media_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `media_url` varchar(255) NOT NULL,
+  `media_url` LONGBLOB NOT NULL,
   PRIMARY KEY (`media_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` TEXT NOT NULL,
   `salt` TEXT NOT NULL,
   `profile_pic` int(11) unsigned,
+  `post_count` int(11) DEFAULT 0,
+  `pet_count` int(11) DEFAULT 0,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `FK_PROFILE_PIC` FOREIGN KEY (`profile_pic`) REFERENCES `media` (`media_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -55,9 +57,10 @@ CREATE TABLE IF NOT EXISTS `group_member` (
 CREATE TABLE IF NOT EXISTS `post` (
   `post_id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `media_id` int(11) unsigned,
-  `pet_id` int(11) unsigned NOT NULL,
+  `pet_id` int(11) unsigned,
   `group_id` int(11) unsigned,
-  `text` varchar(255),
+  `text` TEXT NOT NULL,
+  `caption` VARCHAR(255) NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
   PRIMARY KEY (`post_id`),
   CONSTRAINT `FK_POSTER_USER` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -65,3 +68,36 @@ CREATE TABLE IF NOT EXISTS `post` (
   CONSTRAINT `FK_PET_ID` FOREIGN KEY (`pet_id`) REFERENCES `pet` (`pet_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_POSTER_GROUP` FOREIGN KEY (`group_id`) REFERENCES `group` (`group_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `comment` (
+  `comment_text` varchar(255) NOT NULL,
+  `post_id` int(11) unsigned NOT NULL,
+  `user_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`comment_text`,`post_id`, `user_id`),
+  CONSTRAINT `FK_COMMENTER` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `FK_POST_ID` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DELIMITER //
+CREATE TRIGGER after_user_post
+AFTER INSERT ON `post`
+FOR EACH ROW
+BEGIN
+  UPDATE `user`
+  SET `post_count` = `post_count` + 1
+  WHERE `user_id` = NEW.`user_id`;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER after_user_pet_creation
+AFTER INSERT ON `pet`
+FOR EACH ROW
+BEGIN
+  UPDATE `user`
+  SET `pet_count` = `pet_count` + 1
+  WHERE `user_id` = NEW.`user_id`;
+END;
+//
+DELIMITER ;
