@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password` TEXT NOT NULL,
   `salt` TEXT NOT NULL,
   `profile_pic` int(11) unsigned,
+  `post_count` int(11) DEFAULT 0,
+  `pet_count` int(11) DEFAULT 0,
   PRIMARY KEY (`user_id`),
   CONSTRAINT `FK_PROFILE_PIC` FOREIGN KEY (`profile_pic`) REFERENCES `media` (`media_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -75,3 +77,27 @@ CREATE TABLE IF NOT EXISTS `comment` (
   CONSTRAINT `FK_COMMENTER` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `FK_POST_ID` FOREIGN KEY (`post_id`) REFERENCES `post` (`post_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+DELIMITER //
+CREATE TRIGGER after_user_post
+AFTER INSERT ON `post`
+FOR EACH ROW
+BEGIN
+  UPDATE `user`
+  SET `post_count` = `post_count` + 1
+  WHERE `user_id` = NEW.`user_id`;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
+CREATE TRIGGER after_user_pet_creation
+AFTER INSERT ON `pet`
+FOR EACH ROW
+BEGIN
+  UPDATE `user`
+  SET `pet_count` = `pet_count` + 1
+  WHERE `user_id` = NEW.`user_id`;
+END;
+//
+DELIMITER ;
