@@ -9,7 +9,7 @@ function Feed() {
             <h1>Feed</h1>
             <button
               onClick={() => switchPage()}
-            >pages</button>
+            >groups</button>
         </div>
     )
 

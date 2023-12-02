@@ -13,7 +13,7 @@ function Groups() {
     const openModal = () => setShowModal(true);
     const closeModal = () => setShowModal(false);
 
-    const [newGroupData, setNewGroupData] = useState({
+    const [formData, setFormData] = useState({
       group_name: '',
       group_desc: '',
       group_pic: '',
@@ -22,7 +22,7 @@ function Groups() {
 
 
     const loadResults = () => {
-      fetch("http://localhost:3001/groups/current", {
+      fetch("api/groups/current", {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -69,9 +69,11 @@ function Groups() {
         }
       };
 
-      const handleNewGroupSubmit = (formData) => {
+      const handleNewGroupSubmit = () => {
+        console.log("enters");
         // Make a request to the endpoint with the formData
-        fetch("http://localhost:3001/groups/new", {
+        console.log(formData);
+        fetch("api/groups/new", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -80,6 +82,7 @@ function Groups() {
         })
           .then((res) => {
             if (res.ok) {
+              closeModal();
               // Handle success (e.g., close the modal, update UI, etc.)
               console.log("Group created successfully!");
             } else {
@@ -91,12 +94,40 @@ function Groups() {
             // Handle error (e.g., show error message to the user)
           });
       };
+
+      const handleMedia = (event) => {
+        const file = event.target.files[0];
+
+        if (file) {
+            if (file.type === 'image/jpeg' || file.type === 'image/png') {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const imageBlob = new Blob([reader.result], { type: file.type });
+                    setFormData({ ...formData, group_pic: imageBlob })
+                };
+                reader.readAsArrayBuffer(file);
+            }
+
+        }
+    }
     
 
 
     useEffect(() => {
         // call get groups to populate results
         loadResults();
+
+        // const fetchUserInfo = async () => {
+        //   try {
+        //     const response = await fetch('/api/user/current');
+        //     const userData = await response.json();
+        //     setFormData({ ...formData, admin_id: userData.user_id })
+        //   } catch (error) {
+        //     console.error(error.message);
+        //   }
+        // }
+    
+        fetchUserInfo();
 
     }, []);
 
@@ -139,17 +170,18 @@ function Groups() {
                 Create your own group!
                 </button>
                 {showModal === true &&
-                    <div className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${showModal ? 'block' : 'hidden'}`}>
+                    <div onClick={closeModal()} className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${showModal ? 'block' : 'hidden'}`}>
                     <div className="bg-white p-8 rounded-lg shadow-md">
-                      <span onClick={closeModal} className="absolute top-0 right-0 p-4 cursor-pointer">&times;</span>
+                      <span className="absolute top-0 right-0 p-4 cursor-pointer">&times;</span>
                       <h2 className="text-2xl font-bold mb-4">Create a New Group</h2>
-                      <form>
+                      <form onSubmit={(e) => { e.preventDefault(); handleNewGroupSubmit()}}>
                         <div className="mb-4">
                           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="groupName">Group Name:</label>
                           <input
                             type="text"
                             id="groupName"
                             name="groupName"
+                            onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
                             className="w-full border rounded py-2 px-3 focus:outline-none focus:border-blue-300"
                             required
                           />
@@ -159,6 +191,7 @@ function Groups() {
                           <textarea
                             id="groupDesc"
                             name="groupDesc"
+                            onChange={(e) => setFormData({ ...formData, group_desc: e.target.value })}
                             className="w-full border rounded py-2 px-3 focus:outline-none focus:border-blue-300"
                             required
                           ></textarea>
@@ -166,10 +199,12 @@ function Groups() {
                         <div className="mb-4">
                           <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="groupPic">Group Picture URL:</label>
                           <input
-                            type="text"
+                            type="file"
                             id="groupPic"
                             name="groupPic"
-                            className="w-full border rounded py-2 px-3 focus:outline-none focus:border-blue-300"
+                            onChange={(e) => handleMedia(e)}
+                            className="block text-gray-700 text-sm font-bold mb-2"
+                            accept="image/*"
                           />
                         </div>
                         <button
@@ -178,7 +213,7 @@ function Groups() {
                         >
                           Create Group
                         </button>
-                      </form>
+                      </form >
                     </div>
                   </div>
                 }

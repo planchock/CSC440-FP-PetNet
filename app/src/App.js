@@ -6,6 +6,7 @@ import Signup from "./pages/Signup";
 import AuthProvider from "./components/AuthProvider";
 import Groups from "./pages/Groups";
 import Feed from "./pages/Feed";
+import Group from "./pages/Group";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/groups" element={<Groups />} />
+            <Route path="/group" element={<Group />} />
           </Routes>
         </Router>
       </AuthProvider>
