@@ -24,9 +24,10 @@ function Post() {
         group_id: '',
         group_name: '',
     });
-    
+
     const [pets, setPets] = useState([]);
     const [groups, setGroups] = useState([]);
+
 
     const toggleGroupDropdown = () => {
         setGroupDropdownOpen(!isGroupDropdownOpen);
@@ -41,8 +42,6 @@ function Post() {
             const response = await fetch('/api/pets');
             const data = await response.json();
             setPets(data);
-            console.log("pets", data);
-
         } catch (error) {
             console.error(error.message);
         }
@@ -51,8 +50,6 @@ function Post() {
             const response = await fetch('/api/groups');
             const data = await response.json();
             setGroups(data);
-            console.log("groups", groups);
-
         } catch (error) {
             console.error(error.message);
         }
@@ -61,7 +58,6 @@ function Post() {
     }
 
     const handleMedia = (event) => {
-        console.log("EVENT:", event);
         const file = event.target.files[0];
 
         if (file) {
@@ -69,7 +65,6 @@ function Post() {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const imageBlob = new Blob([reader.result], { type: file.type });
-                    console.log('IMAGEBLOB:', imageBlob);
                     setMediaBlob(imageBlob);
                 };
                 reader.readAsArrayBuffer(file);
@@ -79,6 +74,10 @@ function Post() {
     }
 
     const handleSubmit = () => {
+        if (!caption || !content) {
+            alert("All posts must have a caption and body.");
+            return;
+        }
 
         const formData = new FormData();
         formData.append('caption', caption);
@@ -89,21 +88,18 @@ function Post() {
 
         fetch("/api/post", {
             method: "POST",
-            // headers: {
-            //     "Content-Type": "application/json",
-            // },
-            // body: JSON.stringify({ caption, content, pet_id: pet_id || null, group_id: group_id || null, media: media || null }),
             body: formData
         })
             .then((res) => {
                 if (res.status === 200) {
                     console.log("success");
+                    window.location.href = "/feed";
                 } else {
-                    alert("failure bot");
+                    alert("Error creating post");
                 }
             })
             .catch((err) => {
-                alert("failure");
+                alert("error creating post");
             });
 
     }
@@ -142,7 +138,7 @@ function Post() {
                                             {pet.name}
                                         </button>
                                     ))}
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setPetInfo({pet_id: '', name: ''})}>
+                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setPetInfo({ pet_id: '', name: '' })}>
                                         None
                                     </button>
 
@@ -169,7 +165,7 @@ function Post() {
                                         </button>
                                     ))}
 
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupInfo({group_id: '', group_name: ''})}>
+                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupInfo({ group_id: '', group_name: '' })}>
                                         None
                                     </button>
                                 </div>

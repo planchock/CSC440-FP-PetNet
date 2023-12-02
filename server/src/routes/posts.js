@@ -10,7 +10,6 @@ const upload = multer({ storage: storage });
 const postDAO = new PostDAO();
 
 router.post("/post", auth, upload.single('file'), (req, res) => {
-    console.log("request:", req.body);
     let request = {
         media_id: null,
         pet_id: req.body.pet_id || null,
@@ -23,6 +22,15 @@ router.post("/post", auth, upload.single('file'), (req, res) => {
 
     postDAO.sendPost(request, req.user.user_id, fileBuffer).then(response => {
         return res.status(200).json({msg: "success!"});
+    }).catch(err => {
+        console.error(err);
+        return res.status(500).json({error: "internal server error"})
+    });
+});
+
+router.get("/image", auth, (req, res) => {
+    postDAO.getRecentImage().then(img => {
+        return res.status(200).send(img);
     }).catch(err => {
         console.error(err);
         return res.status(500).json({error: "internal server error"})

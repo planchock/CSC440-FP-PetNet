@@ -9,9 +9,7 @@ router.get("/pets", auth, (req, res) => {
     db.query(
         'SELECT pet_id, name FROM pet WHERE user_id = ?', [userId]
     ).then(results => {
-        console.log(results.results);
         const data = results.results.map(item => item);
-        console.log("data:", data);
         return res.status(200).json(data);
     }).catch((err) => {
         console.error(err);
