@@ -7,7 +7,7 @@ services:
     volumes:
       - /app/node_modules
       - ./app/src:/app/src
-  
+
   server:
     build:
       context: ./server/
