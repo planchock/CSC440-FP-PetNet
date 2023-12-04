@@ -235,10 +235,48 @@ const Profile = () => {
     const [pets, setPets] = useState([]);
     const [posts, setPosts] = useState([]);
 
+    //{ isError: boolean, errorMsg: string }, errorMsg only required if isError is true
+    const [error, setError] = useState();
+
+    //get data on mount
     useEffect(() => {
-        //get pets and posts
-        setPets(petData);
-        setPosts(postData);
+        setError({ isError: false });
+
+        const fetchData = async () => {
+            try {
+                const petResponse = await fetch("/api/pets", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!petResponse.ok) {
+                    throw new Error("Could not load pets.");
+                }
+
+                const petData = await petResponse.json();
+                setPets(petData);
+
+                const postResponse = await fetch("/api/posts", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!postResponse.ok) {
+                    throw new Error("Could not load pets.");
+                }
+
+                const postData = await postResponse.json();
+                setPosts(postData);
+            } catch (error) {
+                setError({ isError: true, errorMsg: error.message });
+            }
+        };
+
+        fetchData();
     }, [])
 
     function handleEdit(petId) {
@@ -249,27 +287,61 @@ const Profile = () => {
         setCurrentlyEditingPet(null);
     }
 
-    function handleUpdate(pet) {
+    async function handleUpdate(pet) {
         //send put request
+        try {
+            const res = await fetch(`/api/pets/${pet.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    pet: pet
+                })
+            });
 
-        //if successful update the pet in the array to update ui
-        setPets(pets => pets.map(p => {
-            if (p.id === pet.id) {
-                return pet;
+            if (res.ok) {
+                //if successful update the pet in the array to update ui
+                setPets(pets => pets.map(p => {
+                    if (p.id === pet.id) {
+                        return pet;
+                    }
+                    return p;
+                }));
+            } else {
+                throw new Error("Could not update pet.")
             }
-            return p;
-        }));
+        } catch (error) {
+            setError({ isError: true, errorMsg: error.message })
+        }
 
         //set the currently editing pet to null
         setCurrentlyEditingPet(null);
     }
 
-    function handleAddNewPet(pet) {
+    async function handleAddNewPet(pet) {
         //send post request
+        try {
+            const res = await fetch(`/api/pets`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    pet: pet
+                })
+            });
 
-        //if successful update the pet in the array to update ui
-        //***make sure to use pet returned from POST req***
-        setPets(pets => [pet, ...pets]);
+            if (res.ok) {
+                const newPet = await res.json();
+                //if successful update the pet in the array to update ui
+                setPets(pets => [newPet, ...pets]);
+            } else {
+                throw new Error("Could not add new pet.")
+            }
+        } catch (error) {
+            setError({ isError: true, errorMsg: error.message })
+        }
 
         //set the currently editing pet to null
         setAddingNewPet(false);
@@ -301,13 +373,16 @@ const Profile = () => {
                             addingNewPet ? <EditablePetCard pet={undefined} handleCancel={() => setAddingNewPet(false)} handleSave={handleAddNewPet} /> : ''
                         }
                         {
-                            pets.map(pet => {
-                                if (pet.id === currentlyEditingPet) {
-                                    return <EditablePetCard key={pet.id} pet={pet} handleCancel={handleCancelEdit} handleSave={handleUpdate} />
-                                } else {
-                                    return <PetCard key={pet.id} pet={pet} handleEdit={handleEdit} canEdit={currentlyEditingPet === null} />
-                                }
-                            })
+                            pets.length > 0 ?
+                                pets.map(pet => {
+                                    if (pet.id === currentlyEditingPet) {
+                                        return <EditablePetCard key={pet.id} pet={pet} handleCancel={handleCancelEdit} handleSave={handleUpdate} />
+                                    } else {
+                                        return <PetCard key={pet.id} pet={pet} handleEdit={handleEdit} canEdit={currentlyEditingPet === null} />
+                                    }
+                                })
+                                :
+                                <div className="text-gray-600 italic">no pets</div>
                         }
                     </div>
                     <div className="m-5">
@@ -315,7 +390,10 @@ const Profile = () => {
                             Posts
                         </div>
                         {
-                            posts.map(post => <PostCard key={post.post_id} post={post} />)
+                            posts.length > 0 ?
+                                posts.map(post => <PostCard key={post.post_id} post={post} />)
+                                :
+                                <div className="text-gray-600 italic">no posts</div>
                         }
                     </div>
                 </div>
