@@ -107,26 +107,11 @@ DELIMITER //
 CREATE PROCEDURE create_comment (
   IN p_comment_text VARCHAR(255),
   IN p_post_id INT,
-  IN p_user_id INT,
-  OUT p_status VARCHAR(255)
+  IN p_user_id INT
 )
 BEGIN
-  DECLARE v_duplicate_entry CONDITION FOR SQLSTATE '23000';
-
-  DECLARE EXIT HANDLER FOR v_duplicate_entry
-  BEGIN
-    SET p_status = 'Comment already exists';
-  END;
-
-  IF p_user_id IS NULL THEN
-    SET p_status = 'No signed-in user';
-  ELSEIF p_comment_text IS NULL THEN
-    SET p_status = 'Missing required information';
-  ELSE
-    INSERT INTO comment (comment_text, post_id, user_id)
-    VALUES (p_comment_text, p_post_id, p_user_id);
-    SET p_status = 'Comment created successfully';
-  END IF;
+  INSERT INTO comment (comment_text, post_id, user_id)
+  VALUES (p_comment_text, p_post_id, p_user_id);
 END //
 
 DELIMITER ;

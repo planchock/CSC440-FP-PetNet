@@ -60,10 +60,10 @@ function Feed() {
       if (res.status === 200) {
         alert("Comment created successfully.");
       } else {
-        alert("Invalid comment.");
+        alert("Invalid comment or you already commented that.");
       }
-    }).catch((err) => {
-      alert("Invalid comment.");
+    }).catch(() => {
+      alert("Error occurred.");
     });
 
     setNewComment("");

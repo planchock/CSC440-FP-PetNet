@@ -119,9 +119,9 @@ router.post("/comments/:post_id", auth, async (req, res) => {
   }
 
   try {
-    const result = await db.query('CALL create_comment(?, ?, ?, @status)',
+    const result = await db.query('CALL create_comment(?, ?, ?)',
     [req.body.text, postId, userId]);
-    return res.status(200);
+    return res.status(200).json({ msg: "Added comment" });
   } catch(err) {
     return res.status(500).json({ msg: "An error occurred" });
   }
