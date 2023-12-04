@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import "tailwindcss/tailwind.css";
 
-function Header({ children }) {
+function UnautheticatedHeader({ children }) {
   return (
     <>
       <div className="z-10 max-w-5xl mx-auto">
@@ -17,4 +17,4 @@ function Header({ children }) {
   );
 }
 
-export default Header;
+export default UnautheticatedHeader;
