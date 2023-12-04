@@ -106,8 +106,7 @@ router.get("/comments/:post_id", auth, async (req, res) => {
   }
 });
 
-router.post("/comments/:post_id", auth, (req, res) => {
-
+router.post("/comments/:post_id", auth, async (req, res) => {
   const userId = req.user.user_id;
   const postId = req.params.post_id; 
 
@@ -119,23 +118,13 @@ router.post("/comments/:post_id", auth, (req, res) => {
     return res.status(400).json({ msg: "Missing required information" });
   }
 
-  db.query(
-    "INSERT INTO comment (comment_text, post_id, user_id) VALUES (?, ?, ?)",
-    [
-      req.body.text,
-      postId,
-      userId,
-    ]
-  )
-  .then((result) => {
-    return res.status(200).json({ msg: "Comment created successfully" });
-  })
-  .catch((err) => {
-    if (err.code === "ER_DUP_ENTRY") {
-      return res.status(400).json({ msg: "Comment already exists" });
-    }
+  try {
+    const result = await db.query('CALL create_comment(?, ?, ?, @status)',
+    [req.body.text, postId, userId]);
+    return res.status(200);
+  } catch(err) {
     return res.status(500).json({ msg: "An error occurred" });
-  });
+  }
 });
 
 router.get("/picture/:post", auth, async (req, res) => {
