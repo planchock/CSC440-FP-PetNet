@@ -28,6 +28,19 @@ router.post("/post", auth, upload.single('file'), (req, res) => {
     });
 });
 
+router.get("/posts", auth, (req, res) => {
+    const userId = req.user.user_id;
+    db.query(
+        'SELECT * FROM post WHERE user_id = ?', [userId]
+    ).then(results => {
+        const data = results.results.map(item => item);
+        return res.status(200).json(data);
+    }).catch((err) => {
+        console.error(err);
+        return res.status(500).json({ msg: "An error occurred" });
+    });
+});
+
 router.get("/image", auth, (req, res) => {
     postDAO.getRecentImage().then(img => {
         return res.status(200).send(img);

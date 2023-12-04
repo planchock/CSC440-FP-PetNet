@@ -11,7 +11,7 @@ import AuthProvider from "./components/AuthProvider";
 function App() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
-      {/* <AuthProvider> */}
+      <AuthProvider>
       <Router>
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -23,7 +23,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
         </Routes>
       </Router>
-      {/* </AuthProvider> */}
+      </AuthProvider>
     </div>
   );
 }
