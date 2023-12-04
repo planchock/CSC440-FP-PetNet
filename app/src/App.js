@@ -5,12 +5,13 @@ import Post from "./pages/Post";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Feed from "./pages/Feed";
+import Profile from "./pages/Profile";
 import AuthProvider from "./components/AuthProvider";
 
 function App() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
-      <AuthProvider>
+      {/* <AuthProvider> */}
         <Router>
           <Routes>
             <Route path="/" element={<Landing />} />
@@ -19,10 +20,10 @@ function App() {
             <Route path="/post" element={<Post />} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/groups" element={<h1>group page</h1>} />
-            <Route path="/profile" element={<h1>profile page</h1>} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </Router>
-      </AuthProvider>
+      {/* </AuthProvider> */}
     </div>
   );
 }
