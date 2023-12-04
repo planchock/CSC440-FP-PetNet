@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import Header from "../components/Header";
 import {stringSimilarity} from "string-similarity-js";
+import AuthenticatedHeader from "../components/AuthenticatedHeader";
 
 function Groups() {
 
@@ -75,35 +75,6 @@ function Groups() {
         }
       };
 
-    //   const handleNewGroupSubmit = () => {
-    //     console.log("enters");
-    //     // Make a request to the endpoint with the formData
-    //     console.log(formData);
-    //     // setFormData({ ...formData, group_pic: formData.group_pic.readAsArrayBuffer });
-
-    //     fetch("api/groups/new", {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: body,
-    //     })
-    //       .then((res) => {
-    //         if (res.ok) {
-    //           closeModal();
-    //           alert("group created sucessfully");
-    //           loadResults();
-    //           // Handle success (e.g., close the modal, update UI, etc.)
-    //           console.log("Group created successfully!");
-    //         } else {
-    //           throw new Error("Failed to create group");
-    //         }
-    //       })
-    //       .catch((error) => {
-    //         console.error(error.message);
-    //         // Handle error (e.g., show error message to the user)
-    //       });
-    //   };
     const handleNewGroupSubmit = () => {
         const body = new FormData();
       
@@ -179,27 +150,27 @@ function Groups() {
 
     return (
         <div>
-            <Header></Header>
+            <AuthenticatedHeader />
             <div>
-                <h1 className="max-w-5xl pt-8 mx-auto text-5xl font-extrabold mb-10 mt-5 text-white">Welcome to PetNet Groups!</h1>
+                <h1 className="max-w-5xl pt-8 mx-auto mt-5 mb-10 text-5xl font-extrabold text-center text-white">Welcome to PetNet Groups!</h1>
             </div>
 
-            <div className="flex justify-center items-center gap-8">
+            <div className="flex items-center justify-center gap-8">
             <div className="relative flex items-center">
                 <input
                 type="text"
-                className="search-bar rounded-full px-6 py-3 w-80 placeholder-gray-500 focus:outline-none focus:ring focus:border-blue-300 transition-all duration-300"
+                className="px-6 py-3 placeholder-gray-500 transition-all duration-300 rounded-full search-bar w-80 focus:outline-none focus:ring focus:border-blue-300"
                 placeholder="Search by Group"
                 onChange={(event) => renderGroups(event)}
                 />
                 {search && (
-                <div className="absolute top-full left-0 mt-2 w-80 bg-white ring-1 ring-black ring-opacity-5 rounded-lg shadow-md">
+                <div className="absolute left-0 mt-2 bg-white rounded-lg shadow-md top-full w-80 ring-1 ring-black ring-opacity-5">
                     {search.map((result, index) => (
                     <a
                         key={index}
                         href="#"
                         onClick={() => handleDropdownItemClick(result)}
-                        className="block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 rounded-lg transition-all duration-300"
+                        className="block px-4 py-2 text-gray-700 transition-all duration-300 rounded-lg hover:bg-gray-100 active:bg-blue-100"
                     >
                         {result}
                     </a>
@@ -213,50 +184,50 @@ function Groups() {
             </div>
 
             <div>
-                <button onClick={() => openModal()} className="create-group-button rounded-full text-white px-8 py-3 bg-blue-500 hover:opacity-90 transition-all duration-300">
+                <button onClick={() => openModal()} className="px-8 py-3 text-white transition-all duration-300 bg-blue-500 rounded-full create-group-button hover:opacity-90">
                 Create your own group!
                 </button>
                 {showModal === true &&
                     <div className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${showModal ? 'block' : 'hidden'}`}>
-                    <div className="bg-white p-8 rounded-lg shadow-md">
+                    <div className="p-8 bg-white rounded-lg shadow-md">
                       <span className="absolute top-0 right-0 p-4 cursor-pointer" onClick={closeModal}>&times;</span>
-                      <h2 className="text-2xl font-bold mb-4">Create a New Group</h2>
+                      <h2 className="mb-4 text-2xl font-bold">Create a New Group</h2>
                       <form onSubmit={(e) => { e.preventDefault(); handleNewGroupSubmit()}}>
                         <div className="mb-4">
-                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="groupName">Group Name:</label>
+                          <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="groupName">Group Name:</label>
                           <input
                             type="text"
                             id="groupName"
                             name="groupName"
                             onChange={(e) => setFormData({ ...formData, group_name: e.target.value })}
-                            className="w-full border rounded py-2 px-3 focus:outline-none focus:border-blue-300"
+                            className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-300"
                             required
                           />
                         </div>
                         <div className="mb-4">
-                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="groupDesc">Group Description:</label>
+                          <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="groupDesc">Group Description:</label>
                           <textarea
                             id="groupDesc"
                             name="groupDesc"
                             onChange={(e) => setFormData({ ...formData, group_desc: e.target.value })}
-                            className="w-full border rounded py-2 px-3 focus:outline-none focus:border-blue-300"
+                            className="w-full px-3 py-2 border rounded focus:outline-none focus:border-blue-300"
                             required
                           ></textarea>
                         </div>
                         <div className="mb-4">
-                          <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="groupPic">Group Picture URL:</label>
+                          <label className="block mb-2 text-sm font-bold text-gray-700" htmlFor="groupPic">Group Picture URL:</label>
                           <input
                             type="file"
                             id="groupPic"
                             name="groupPic"
                             onChange={(e) => handleMedia(e)}
-                            className="block text-gray-700 text-sm font-bold mb-2"
+                            className="block mb-2 text-sm font-bold text-gray-700"
                             accept="image/*"
                           />
                         </div>
                         <button
                           type="submit"
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                          className="px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700"
                         >
                           Create Group
                         </button>

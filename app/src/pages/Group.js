@@ -1,6 +1,6 @@
 import { useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import Header from '../components/Header';
+import AuthenticatedHeader from "../components/AuthenticatedHeader"
 
 const Group = () => {
   const location = useLocation();
@@ -136,36 +136,36 @@ const Group = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
-      <Header></Header>
-      <div className="text-center flex flex-row items-center justify-center">
-        <h1 className="text-5xl font-extrabold mb-5 mr-3 mt-3 text-white">{groupInfo && groupInfo.group_name}</h1>
+      <AuthenticatedHeader />
+      <div className="flex flex-row items-center justify-center text-center">
+        <h1 className="mt-3 mb-5 mr-3 text-5xl font-extrabold text-white">{groupInfo && groupInfo.group_name}</h1>
         {
             join && (
-                <button onClick={() => joinGroup()} className="rounded-full text-white px-8 ml-3 py-3 bg-blue-500 hover:opacity-90 transition-all duration-300">
+                <button onClick={() => joinGroup()} className="px-8 py-3 ml-3 text-white transition-all duration-300 bg-blue-500 rounded-full hover:opacity-90">
                 Join Now
                 </button>
             )         
         }
         {
             !join && (
-                <button onClick={() => createPost()} className="rounded-full text-white px-8 ml-3 py-3 bg-blue-500 hover:opacity-90 transition-all duration-300">
+                <button onClick={() => createPost()} className="px-8 py-3 ml-3 text-white transition-all duration-300 bg-blue-500 rounded-full hover:opacity-90">
                 Create Post
                 </button>
             )         
         }
      </div>
       <div className="flex">
-        <div className="w-1/4 bg-white p-4 rounded-lg ml-10">
+        <div className="w-1/4 p-4 ml-10 bg-white rounded-lg">
           <div>
-            <h1 className='text-lg font-semibold mb-2 text-center'>Group Information</h1>
+            <h1 className='mb-2 text-lg font-semibold text-center'>Group Information</h1>
           <div className="flex items-center">
-                  <img src={profileBlob} alt="Profile Pic" className="rounded-full w-16 h-16 mb-2" />
-                  {/* <img alt="Profile Pic" className="rounded-full w-16 h-16 mb-2" /> */}
+                  <img src={profileBlob} alt="Profile Pic" className="w-16 h-16 mb-2 rounded-full" />
+                  {/* <img alt="Profile Pic" className="w-16 h-16 mb-2 rounded-full" /> */}
            </div>
-            <p className="text-lg font-semibold mb-2">Admin: {username}</p>
+            <p className="mb-2 text-lg font-semibold">Admin: {username}</p>
             {groupInfo && (
               <>
-                <p className="text-lg font-semibold mb-2">Group Description: {groupInfo.group_desc}</p>
+                <p className="mb-2 text-lg font-semibold">Group Description: {groupInfo.group_desc}</p>
               </>
             )}
           </div>
@@ -176,13 +176,13 @@ const Group = () => {
                 
                 <div
                 key={post.post_id}
-                className="bg-white p-4 mb-4 rounded-md shadow-md"
+                className="p-4 mb-4 bg-white rounded-md shadow-md"
                 >
                 <div className="flex items-center mb-4">
                     <img
                     src={`/api/user/profile-picture/${post.user_id}`}
                     alt="User Profile Pic"
-                    className="w-10 h-10 rounded-full mr-2"
+                    className="w-10 h-10 mr-2 rounded-full"
                     />
                 </div>
 
@@ -194,27 +194,27 @@ const Group = () => {
                     <img
                         src={`/api/feed/picture/${post.post_id}`}
                         alt="Post Media"
-                        className="w-full h-40 object-cover mb-2 rounded-md"
+                        className="object-cover w-full h-40 mb-2 rounded-md"
                     />
                     )}
                     <p>{post.text}</p>
                 </div>
 
                 {post.group_name && (
-                    <div className="text-sm text-gray-500 ml-auto">
+                    <div className="ml-auto text-sm text-gray-500">
                     in group: {post.group_name}
                     </div>
                 )}
 
                 {/* <div className="flex items-center justify-between mt-4">
                     <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    className="px-4 py-2 text-white bg-blue-500 rounded"
                     // onClick={() => openCommentsModal(post.post_id)}
                     >
                     See Comments
                     </button>
                     <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                    className="px-4 py-2 text-white bg-blue-500 rounded"
                     // onClick={() => openWriteCommentModal(post.post_id)}
                     >
                     Leave a comment
