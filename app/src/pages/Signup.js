@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import Header from "../components/Header";
+import UnauthenticatedHeader from "../components/UnauthenticatedHeader";
 
 function Signup() {
   const [firstName, setFirstName] = useState("");
@@ -31,12 +31,12 @@ function Signup() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         firstName,
         lastName,
         username,
         password,
-        confirmPassword: confirm, 
+        confirmPassword: confirm,
       }),
     })
       .then((res) => {
@@ -46,13 +46,14 @@ function Signup() {
         } else {
           alert("Invalid username or password.");
         }
-      }).catch((err) => {
+      })
+      .catch((err) => {
         alert("Invalid username or password.");
       });
   };
 
   return (
-    <Header>
+    <UnauthenticatedHeader>
       <div className="flex items-center justify-center max-w-5xl mx-auto">
         <div className="flex items-center space-x-40">
           <img src="/cat.webp" height={300} width={450} />
@@ -97,7 +98,7 @@ function Signup() {
           </div>
         </div>
       </div>
-    </Header>
+    </UnauthenticatedHeader>
   );
 }
 

@@ -1,209 +1,233 @@
 import "tailwindcss/tailwind.css";
 import { useState, useEffect } from "react";
-import Header from "../components/Header";
+import AuthenticatedHeader from "../components/AuthenticatedHeader";
 
 function Post() {
-    const [isPetDropdownOpen, setPetDropdownOpen] = useState(false);
+  const [isPetDropdownOpen, setPetDropdownOpen] = useState(false);
 
-    const togglePetDropdown = () => {
-        setPetDropdownOpen(!isPetDropdownOpen);
-    };
+  const togglePetDropdown = () => {
+    setPetDropdownOpen(!isPetDropdownOpen);
+  };
 
-    const [isGroupDropdownOpen, setGroupDropdownOpen] = useState(false);
+  const [isGroupDropdownOpen, setGroupDropdownOpen] = useState(false);
 
-    const [caption, setCaption] = useState("");
-    const [content, setContent] = useState("");
-    const [media, setMediaBlob] = useState("");
+  const [caption, setCaption] = useState("");
+  const [content, setContent] = useState("");
+  const [media, setMediaBlob] = useState("");
 
-    const [petInfo, setPetInfo] = useState({
-        pet_id: '',
-        name: '',
-    });
+  const [petInfo, setPetInfo] = useState({
+    pet_id: "",
+    name: "",
+  });
 
-    const [groupInfo, setGroupInfo] = useState({
-        group_id: '',
-        group_name: '',
-    });
+  const [groupInfo, setGroupInfo] = useState({
+    group_id: "",
+    group_name: "",
+  });
 
-    const [pets, setPets] = useState([]);
-    const [groups, setGroups] = useState([]);
+  const [pets, setPets] = useState([]);
+  const [groups, setGroups] = useState([]);
 
+  const toggleGroupDropdown = () => {
+    setGroupDropdownOpen(!isGroupDropdownOpen);
+  };
+  useEffect(() => {
+    fetchDropdownContent();
+  }, []);
 
-    const toggleGroupDropdown = () => {
-        setGroupDropdownOpen(!isGroupDropdownOpen);
-    };
-    useEffect(() => {
-        fetchDropdownContent();
-    }, []);
-
-    const fetchDropdownContent = async () => {
-
-        try {
-            const response = await fetch('/api/pets');
-            const data = await response.json();
-            setPets(data);
-        } catch (error) {
-            console.error(error.message);
-        }
-
-        try {
-            const response = await fetch('/api/groups');
-            const data = await response.json();
-            setGroups(data);
-        } catch (error) {
-            console.error(error.message);
-        }
-
-
+  const fetchDropdownContent = async () => {
+    try {
+      const response = await fetch("/api/pets");
+      const data = await response.json();
+      setPets(data);
+    } catch (error) {
+      console.error(error.message);
     }
 
-    const handleMedia = (event) => {
-        const file = event.target.files[0];
+    try {
+      const response = await fetch("/api/groups");
+      const data = await response.json();
+      setGroups(data);
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
 
-        if (file) {
-            if (file.type === 'image/jpeg' || file.type === 'image/png') {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    const imageBlob = new Blob([reader.result], { type: file.type });
-                    setMediaBlob(imageBlob);
-                };
-                reader.readAsArrayBuffer(file);
-            }
+  const handleMedia = (event) => {
+    const file = event.target.files[0];
 
-        }
+    if (file) {
+      if (file.type === "image/jpeg" || file.type === "image/png") {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const imageBlob = new Blob([reader.result], { type: file.type });
+          setMediaBlob(imageBlob);
+        };
+        reader.readAsArrayBuffer(file);
+      }
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!caption || !content) {
+      alert("All posts must have a caption and body.");
+      return;
     }
 
-    const handleSubmit = () => {
-        if (!caption || !content) {
-            alert("All posts must have a caption and body.");
-            return;
+    const formData = new FormData();
+    formData.append("caption", caption);
+    formData.append("content", content);
+    formData.append("pet_id", petInfo.pet_id);
+    formData.append("group_id", groupInfo.group_id);
+    formData.append("file", media);
+
+    fetch("/api/post", {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          console.log("success");
+          window.location.href = "/feed";
+        } else {
+          alert("Error creating post");
         }
+      })
+      .catch((err) => {
+        alert("error creating post");
+      });
+  };
 
-        const formData = new FormData();
-        formData.append('caption', caption);
-        formData.append('content', content);
-        formData.append('pet_id', petInfo.pet_id);
-        formData.append('group_id', groupInfo.group_id);
-        formData.append('file', media);
+  return (
+    <>
+      <AuthenticatedHeader />
+      <div className="w-full">
+        <div className="flex justify-center">
+          <span className="text-5xl text-white">
+            <b>Create Post</b>
+          </span>
+        </div>
+        <div className="mt-6">
+          <div className="flex justify-center w-full mx-6">
+            <span className="mr-6 text-pink-400">Caption:</span>
+            <input
+              className="w-3/5 rounded-md"
+              type="text"
+              onChange={(e) => setCaption(e.target.value)}
+              required
+            />
+          </div>
+          <div className="flex justify-center w-full mx-6 mt-6">
+            <textarea
+              className="w-2/3 rounded-md"
+              name="postContent"
+              id="post-content"
+              cols="30"
+              rows="10"
+              placeholder="Post here!"
+              onChange={(e) => setContent(e.target.value)}
+              required
+            ></textarea>
+          </div>
+          <div className="flex justify-center w-auto mx-6 mt-2">
+            <div className="px-6">
+              <button
+                onClick={togglePetDropdown}
+                className="px-4 py-2 text-white bg-blue-500 rounded"
+              >
+                {petInfo.name ? petInfo.name : "Pet"}
+              </button>
 
-        fetch("/api/post", {
-            method: "POST",
-            body: formData
-        })
-            .then((res) => {
-                if (res.status === 200) {
-                    console.log("success");
-                    window.location.href = "/feed";
-                } else {
-                    alert("Error creating post");
-                }
-            })
-            .catch((err) => {
-                alert("error creating post");
-            });
-
-    }
-
-    return (
-
-        <Header>
-            <div className="w-full">
-                <div className="flex justify-center">
-                    <span className="text-5xl text-white"><b>Create Post</b></span>
+              {isPetDropdownOpen && (
+                <div className="absolute mt-2 bg-white border rounded">
+                  {pets.map((pet) => (
+                    <button
+                      key={pet.pet_id}
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                      onClick={() =>
+                        setPetInfo({ pet_id: pet.pet_id, name: pet.name })
+                      }
+                    >
+                      {pet.name}
+                    </button>
+                  ))}
+                  <button
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                    onClick={() => setPetInfo({ pet_id: "", name: "" })}
+                  >
+                    None
+                  </button>
                 </div>
-                <div className="mt-6">
-                    <div className="flex justify-center w-full mx-6">
-                        <span className="mr-6 text-pink-400">Caption:</span>
-                        <input className="w-3/5 rounded-md" type="text" onChange={(e) => setCaption(e.target.value)} required />
-
-                    </div>
-                    <div className="mt-6 flex justify-center w-full mx-6">
-                        <textarea className="rounded-md w-2/3" name="postContent" id="post-content" cols="30" rows="10" placeholder="Post here!" onChange={(e) => setContent(e.target.value)} required></textarea>
-                    </div>
-                    <div className="flex w-auto justify-center mx-6 mt-2">
-
-                        <div className="px-6">
-                            <button onClick={togglePetDropdown} className="bg-blue-500 text-white px-4 py-2 rounded">
-                                {petInfo.name ? petInfo.name : 'Pet'}
-                            </button>
-
-                            {isPetDropdownOpen && (
-                                <div className="absolute mt-2 bg-white border rounded">
-                                    {pets.map((pet) => (
-                                        <button
-                                            key={pet.pet_id}
-                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                                            onClick={() => setPetInfo({ pet_id: pet.pet_id, name: pet.name })}
-                                        >
-                                            {pet.name}
-                                        </button>
-                                    ))}
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setPetInfo({ pet_id: '', name: '' })}>
-                                        None
-                                    </button>
-
-                                </div>
-                            )}
-                        </div>
-
-
-
-                        <div className="px-6">
-                            <button onClick={toggleGroupDropdown} className="bg-blue-500 text-white px-4 py-2 rounded">
-                                {groupInfo.group_name ? groupInfo.group_name : "group"}
-                            </button>
-
-                            {isGroupDropdownOpen && (
-                                <div className="absolute mt-2 bg-white border rounded">
-                                    {groups.map((group) => (
-                                        <button
-                                            key={group.group_id}
-                                            className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                                            onClick={() => setGroupInfo({ group_id: group.group_id, group_name: group.group_name })}
-                                        >
-                                            {group.group_name}
-                                        </button>
-                                    ))}
-
-                                    <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupInfo({ group_id: '', group_name: '' })}>
-                                        None
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-
-                        <div>
-                            <input type="file" onChange={(e) => handleMedia(e)} class="ml-12 relative inline-block text-lg group" accept="image/*" />
-                        </div>
-
-                        <div>
-                            <button onClick={handleSubmit} class="ml-12 relative inline-block text-lg group">
-                                <span class="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-gray-800 transition-colors duration-300 ease-out border-2 border-gray-900 rounded-lg group-hover:text-white">
-                                    <span class="absolute inset-0 w-full h-full px-5 py-3 rounded-lg bg-yellow-200"></span>
-                                    <span class="absolute left-0 w-48 h-48 -ml-2 transition-all duration-300 origin-top-right -rotate-90 -translate-x-full translate-y-12 bg-gray-900 group-hover:-rotate-180 ease"></span>
-                                    <span class="relative">Submit</span>
-                                </span>
-                                <span
-                                    class="absolute bottom-0 right-0 w-full h-12 -mb-1 -mr-1 transition-all duration-200 ease-linear bg-gray-900 rounded-lg group-hover:mb-0 group-hover:mr-0"
-                                    data-rounded="rounded-lg"
-                                ></span>
-                            </button>
-                        </div>
-
-
-
-
-
-
-                    </div>
-
-
-                </div>
+              )}
             </div>
 
+            <div className="px-6">
+              <button
+                onClick={toggleGroupDropdown}
+                className="px-4 py-2 text-white bg-blue-500 rounded"
+              >
+                {groupInfo.group_name ? groupInfo.group_name : "group"}
+              </button>
 
-        </Header>
-    );
+              {isGroupDropdownOpen && (
+                <div className="absolute mt-2 bg-white border rounded">
+                  {groups.map((group) => (
+                    <button
+                      key={group.group_id}
+                      className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                      onClick={() =>
+                        setGroupInfo({
+                          group_id: group.group_id,
+                          group_name: group.group_name,
+                        })
+                      }
+                    >
+                      {group.group_name}
+                    </button>
+                  ))}
+
+                  <button
+                    className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                    onClick={() =>
+                      setGroupInfo({ group_id: "", group_name: "" })
+                    }
+                  >
+                    None
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <input
+                type="file"
+                onChange={(e) => handleMedia(e)}
+                class="ml-12 relative inline-block text-lg group"
+                accept="image/*"
+              />
+            </div>
+
+            <div>
+              <button
+                onClick={handleSubmit}
+                class="ml-12 relative inline-block text-lg group"
+              >
+                <span class="relative z-10 block px-5 py-3 overflow-hidden font-medium leading-tight text-gray-800 transition-colors duration-300 ease-out border-2 border-gray-900 rounded-lg group-hover:text-white">
+                  <span class="absolute inset-0 w-full h-full px-5 py-3 rounded-lg bg-yellow-200"></span>
+                  <span class="absolute left-0 w-48 h-48 -ml-2 transition-all duration-300 origin-top-right -rotate-90 -translate-x-full translate-y-12 bg-gray-900 group-hover:-rotate-180 ease"></span>
+                  <span class="relative">Submit</span>
+                </span>
+                <span
+                  class="absolute bottom-0 right-0 w-full h-12 -mb-1 -mr-1 transition-all duration-200 ease-linear bg-gray-900 rounded-lg group-hover:mb-0 group-hover:mr-0"
+                  data-rounded="rounded-lg"
+                ></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 export default Post;
