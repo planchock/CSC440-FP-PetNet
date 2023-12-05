@@ -12,17 +12,47 @@ const Group = () => {
   const [postsInfo, setPostsInfo] = useState(null);
   const [join, setJoin] = useState(null);
   const [profileBlob, setProfileBlob] = useState(null);
+  const [postOwners, setPostOwners] = useState(null);
 
   const fetchUserInfo = async () => {
     try {
       const response = await fetch('/api/user/current');
       const userData = await response.json();
       setUserId(userData.user_id);
-      setUsername(userData.username)
     } catch (error) {
       console.error('Error fetching user information:', error.message);
     }
+
+    if (groupInfo){
+        try {
+            const response = await fetch(`/api/user/${groupInfo.admin_id}`);
+            const userData = await response.json();
+            setUsername(userData.username)
+        } catch (error) {
+            console.error('Error fetching user information:', error.message);
+        }
+            
+    }
   };
+
+  const fetchPostOwners = async () => {
+    if (postsInfo) {
+      let postOwnersMap = new Map();
+      console.log('Entering loop...');
+      console.log("posts info lenght " + postsInfo.length);
+      for (let i = 0; i < postsInfo.length; i++) {
+        console.log('Fetching data for post:', postsInfo[i].post_id);
+        const response = await fetch(`/api/user/${postsInfo[i].user_id}`);
+        const posterData = await response.json();
+        console.log('Fetched data:', posterData);
+        postOwnersMap.set(postsInfo[i].post_id, posterData);
+      }
+      console.log('Exiting loop...');
+      console.log('Post owners map:', postOwnersMap);
+      setPostOwners(postOwnersMap);
+    }
+  };
+  
 
   const fetchGroupInfo = async () => {
     try {
@@ -59,6 +89,7 @@ const Group = () => {
       const response = await fetch(`/api/groups/posts/${groupId}`);
       const postData = await response.json();
       setPostsInfo(postData.posts);
+      console.log(postData.posts);
       // Handle 'memberData' based on your API response structure
     } catch (error) {
       console.error('Error fetching member information:', error.message);
@@ -68,7 +99,6 @@ const Group = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchUserInfo();
         await fetchGroupInfo();
         await fetchMemberInfo();
         await fetchPostsInfo();
@@ -86,8 +116,18 @@ const Group = () => {
   },[memberInfo]);
 
   useEffect(() => {
+    fetchUserInfo()
+  }, [groupInfo])
+
+  useEffect(() => {
     fetchMemberInfo();
   }, [join])
+
+  useEffect(() => {
+    fetchPostOwners();
+  }, [postsInfo])
+
+
 
   const updateJoin = () => {
     if (userId && groupInfo && memberInfo) {
@@ -172,7 +212,7 @@ const Group = () => {
         </div>
   
         <div className="flex-1 p-8">
-            {postsInfo && postsInfo.map((post) => (
+            {postOwners && postsInfo && postsInfo.map((post) => (
                 
                 <div
                 key={post.post_id}
@@ -184,13 +224,19 @@ const Group = () => {
                     alt="User Profile Pic"
                     className="w-10 h-10 mr-2 rounded-full"
                     />
-                </div>
+                                    <div>
+                  <div className="font-bold">
+                    {postOwners.get(post.post_id).first_name} {postOwners.get(post.post_id).last_name}
+                    </div>
+                    <div className="text-gray-600">@{postOwners.get(post.post_id).username}</div>
+                  </div>
+                    </div>
 
                 <div className="mb-4 text-center">
                     <div className="font-bold">
                     {post.caption}
                     </div>
-                    {post.media && (
+                    {post.media_id && (
                     <img
                         src={`/api/feed/picture/${post.post_id}`}
                         alt="Post Media"

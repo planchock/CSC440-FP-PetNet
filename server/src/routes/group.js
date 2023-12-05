@@ -31,23 +31,13 @@ router.get("/current", async (req, res) => {
     }
   });
   
+
 router.post('/new', upload.single('group_pic'), async (req, res) => {
     try {
         const { group_name, group_desc, admin_id } = req.body;
         const fileBuffer = req.file ? req.file.buffer : null;
-        const existingGroup = await db.query('SELECT * FROM petnet.group WHERE LOWER(group_name) = LOWER(?)', [group_name]);
-        if (existingGroup.length > 0) {
-            return res.status(400).json({ msg: 'Group with the same name already exists.' });
-        }
-        let pic_fk = null;
-        if (fileBuffer !== null){
-            const result = await db.query('INSERT INTO media (media_url) VALUES(?)', [fileBuffer]);
-            pic_fk = result.results.insertId;
-
-        }
-        const result = await db.query('INSERT INTO petnet.group (group_pic, group_name, group_desc, admin_id) VALUES (?, ?, ?, ?)', [pic_fk, group_name, group_desc, admin_id]);
+        const result = await db.query('CALL create_group(?, ?, ?, ?)', [group_name, group_desc, admin_id, fileBuffer]);
         const groupId = result.results.insertId;
-        await db.query('INSERT INTO group_member (group_id, user_id) VALUES (?, ?)', [groupId, admin_id]);
         return res.status(200).json({ msg: 'Group created successfully', group_id: groupId });
     } catch (err) {
         console.error(err);
