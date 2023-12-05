@@ -18,9 +18,19 @@ const Group = () => {
       const response = await fetch('/api/user/current');
       const userData = await response.json();
       setUserId(userData.user_id);
-      setUsername(userData.username)
     } catch (error) {
       console.error('Error fetching user information:', error.message);
+    }
+
+    if (groupInfo){
+        try {
+            const response = await fetch(`/api/user/${groupInfo.admin_id}`);
+            const userData = await response.json();
+            setUsername(userData.username)
+        } catch (error) {
+            console.error('Error fetching user information:', error.message);
+        }
+            
     }
   };
 
@@ -68,7 +78,6 @@ const Group = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchUserInfo();
         await fetchGroupInfo();
         await fetchMemberInfo();
         await fetchPostsInfo();
@@ -84,6 +93,10 @@ const Group = () => {
   useEffect(() => {
     updateJoin()
   },[memberInfo]);
+
+  useEffect(() => {
+    fetchUserInfo()
+  }, [groupInfo])
 
   useEffect(() => {
     fetchMemberInfo();

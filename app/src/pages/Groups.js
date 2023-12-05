@@ -94,6 +94,7 @@ function Groups() {
               alert("Group created successfully!");
               loadResults();
             } else {
+              alert("Failed to create group");
               throw new Error("Failed to create group");
             }
           })
