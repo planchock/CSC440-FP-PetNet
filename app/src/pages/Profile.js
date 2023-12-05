@@ -150,6 +150,9 @@ const Profile = () => {
     const [posts, setPosts] = useState([]);
     const [user, setUser] = useState([]);
 
+    const [imageBlob, setImageBlob] = useState([]);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+
     //{ isError: boolean, errorMsg: string }, errorMsg only required if isError is true
     const [error, setError] = useState({ isError: false, errorMsg: "" });
 
@@ -198,7 +201,16 @@ const Profile = () => {
                     throw new Error("Could not load user details.");
                 }
                 const userData = await userResponse.json();
+                console.log(userData)
                 setUser(userData);
+
+                const pfpResponse = await fetch(`/api/user/profile-picture/${userData.user_id}`);
+                if (!pfpResponse.ok) {
+                    throw new Error("Could not load user profile picture.");
+                }
+                const imgData = await pfpResponse.blob();
+                const url = URL.createObjectURL(new Blob([imgData]));
+                setPfpUrl(url);
             } catch (error) {
                 setError({ isError: true, errorMsg: error.message });
             }
@@ -295,18 +307,64 @@ const Profile = () => {
         setAddingNewPet(false);
     }
 
+    const handleMedia = (event) => {
+        const file = event.target.files[0];
+
+        if (file) {
+            if (file.type === "image/jpeg" || file.type === "image/png") {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    const imageBlob = new Blob([reader.result], { type: file.type });
+                    setMediaBlob(imageBlob);
+                };
+                reader.readAsArrayBuffer(file);
+            }
+        }
+    };
+
+    async function handleSaveProfile() {
+
+    }
+
     return (
         <div className="grid grid-cols-3 lg:grid-cols-4 h-screen">
             <div className="col-span-1 flex flex-col items-center mt-[15vh] gap-2">
                 <div className="rounded-full bg-gray-600 h-40 w-40">
 
                 </div>
+                {
+                    isEditingProfile ?
+                        <input
+                            type="file"
+                            onChange={(e) => handleMedia(e)}
+                            className="text-lg"
+                            accept=".jpeg, .jpg, .png"
+                        />
+                        :
+                        ''
+                }
                 <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
                     {user.first_name} {user.last_name}
                 </div>
                 <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
                     @{user.username}
                 </div>
+                <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
+                    {user.pet_count} pets
+                </div>
+                <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
+                    {user.post_count} posts
+                </div>
+                {
+                    isEditingProfile ?
+                        <button onClick={handleSaveProfile} className="m-1 px-5 py-1 text-l font-bold text-white rounded-lg drop-shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800">
+                            Save
+                        </button>
+                        :
+                        <button onClick={() => setIsEditingProfile(true)} className="m-1 px-5 py-1 text-l font-bold text-white rounded-lg drop-shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800">
+                            Edit
+                        </button>
+                }
             </div>
             <div className="relative px-4 overflow-y-auto content-center col-span-2 lg:col-span-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-l-[20px] border-l-4">
                 <div className="lg:w-4/5 lg:m-auto">

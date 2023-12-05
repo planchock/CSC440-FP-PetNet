@@ -11,13 +11,13 @@ router.get("/current", auth, async (req, res) => {
   }
 
   try {
-    const userInfo = await db.query("SELECT user_id, first_name, last_name, username, profile_pic FROM user WHERE user_id = ?", [userId]);
+    const userInfo = await db.query("SELECT user_id, first_name, last_name, username, profile_pic, post_count, pet_count FROM user WHERE user_id = ?", [userId]);
     const user = userInfo.results;
-    
+
     if (user.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     return res.status(200).json(user[0]);
   } catch (err) {
     console.error(err);
@@ -32,16 +32,38 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
     return res.status(400).json({ msg: "No signed-in user" });
   }
 
-  const user = req.params.user; 
+  const user = req.params.user;
 
   try {
     const pictureInfo = await db.query(
       "SELECT media_url FROM media INNER JOIN user ON user.profile_pic = media.media_id WHERE user.user_id = ?",
       [user]
-    );    
-    const picture = pictureInfo.results[0].media_url;
-    
-    return res.status(200).send(picture);
+    );
+    if (results && results.length > 0) {
+      const picture = pictureInfo.results[0].media_url;
+      return res.status(200).send(picture);
+    } else {
+      return res.status(404).json({ msg: "User has no profile picture" });
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ msg: "An error occurred" });
+  }
+});
+
+router.put("/profile-picture", auth, async (req, res) => {
+  const userId = req.user.user_id;
+  const { mediaId } = req.body; // Assuming you send the media_id in the request body
+
+  if (!userId) {
+    return res.status(400).json({ msg: "No signed-in user" });
+  }
+
+  try {
+    // Update the user's profile_pic field with the selected media_id
+    await db.query("UPDATE user SET profile_pic = ? WHERE user_id = ?", [mediaId, userId]);
+
+    return res.status(200).json({ msg: "Profile picture set successfully" });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ msg: "An error occurred" });
