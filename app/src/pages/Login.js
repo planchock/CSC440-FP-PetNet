@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import Header from "../components/Header";
+import UnauthenticatedHeader from "../components/UnauthenticatedHeader";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -43,7 +43,7 @@ function Login() {
   };
 
   return (
-    <Header>
+    <UnauthenticatedHeader>
       <div className="flex items-center justify-center max-w-5xl mx-auto">
         <div className="flex items-center space-x-40">
           <img src="/cat.webp" height={300} width={450} />
@@ -70,7 +70,7 @@ function Login() {
           </div>
         </div>
       </div>
-    </Header>
+    </UnauthenticatedHeader>
   );
 }
 
