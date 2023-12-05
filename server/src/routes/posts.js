@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const PostDAO = require("../db/PostDAO");
 const auth = require("../middleware/auth");
+const db = require("../db/database");
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -21,10 +22,10 @@ router.post("/post", auth, upload.single('file'), (req, res) => {
     const fileBuffer = req.file ? req.file.buffer : null;
 
     postDAO.sendPost(request, req.user.user_id, fileBuffer).then(response => {
-        return res.status(200).json({msg: "success!"});
+        return res.status(200).json({ msg: "success!" });
     }).catch(err => {
         console.error(err);
-        return res.status(500).json({error: "internal server error"})
+        return res.status(500).json({ error: "internal server error" })
     });
 });
 
@@ -37,7 +38,7 @@ router.get("/posts", auth, (req, res) => {
         return res.status(200).json(data);
     }).catch((err) => {
         console.error(err);
-        return res.status(500).json({ msg: "An error occurred" });
+        return res.status(400).json({ msg: "An error occurred" });
     });
 });
 
@@ -46,7 +47,7 @@ router.get("/image", auth, (req, res) => {
         return res.status(200).send(img);
     }).catch(err => {
         console.error(err);
-        return res.status(500).json({error: "internal server error"})
+        return res.status(500).json({ error: "internal server error" })
     });
 });
 

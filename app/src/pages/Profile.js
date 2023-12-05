@@ -1,107 +1,6 @@
 import { useEffect, useState } from "react";
 
-const postData = [
-    {
-        post_id: 1,
-        user_id: 101,
-        first_name: "John",
-        last_name: "Doe",
-        pet: "Dog",
-        username: "johndoe123",
-        caption: "Enjoying a day at the park with my furry friend!",
-        media: "image.jpg",
-        text: "Had a great time outdoors today.",
-        group_name: "Pet Lovers"
-    },
-    {
-        post_id: 2,
-        user_id: 102,
-        first_name: "Alice",
-        last_name: "Smith",
-        pet: "Cat",
-        username: "alicesmith456",
-        caption: "Lazy Sunday with my adorable cat.",
-        media: "cat_video.mp4",
-        text: "Cats make everything better.",
-        group_name: "Cat Enthusiasts"
-    },
-    {
-        post_id: 3,
-        user_id: 103,
-        first_name: "Bob",
-        last_name: "Johnson",
-        pet: "Hamster",
-        username: "bobjohnson789",
-        caption: "Meet my tiny ball of fur!",
-        media: "hamster_photo.png",
-        text: "Small pets, big joy.",
-        group_name: "Tiny Pets Club"
-    },
-    {
-        post_id: 4,
-        user_id: 104,
-        first_name: "Emma",
-        last_name: "Davis",
-        pet: "Parrot",
-        username: "emmadavis010",
-        caption: "Teaching my parrot new tricks!",
-        media: "parrot_video.mov",
-        text: "Birds are amazing learners.",
-        group_name: "Bird Lovers United"
-    },
-    {
-        post_id: 5,
-        user_id: 105,
-        first_name: "Charlie",
-        last_name: "Miller",
-        pet: "Fish",
-        username: "charliemiller222",
-        caption: "Aquarium adventures!",
-        media: "fish_tank_photo.jpg",
-        text: "Underwater beauty.",
-        group_name: "Fish Enthusiasts"
-    }
-];
-
-const petData = [
-    {
-        id: 1,
-        name: "Buddy",
-        type: "Dog",
-        birthday: "2020-05-15",
-        bio: "Friendly and energetic companion."
-    },
-    {
-        id: 2,
-        name: "Whiskers",
-        type: "Cat",
-        birthday: "2019-08-22",
-        bio: "Loves to nap and play with yarn."
-    },
-    {
-        id: 3,
-        name: "Nibbles",
-        type: "Hamster",
-        birthday: "2021-02-10",
-        bio: "Tiny and cute, enjoys running on the wheel."
-    },
-    {
-        id: 4,
-        name: "Rio",
-        type: "Parrot",
-        birthday: "2018-11-30",
-        bio: "Colorful and talkative feathered friend."
-    },
-    {
-        id: 5,
-        name: "Finley",
-        type: "Fish",
-        birthday: "2022-04-05",
-        bio: "Beautiful aquatic creature with vibrant scales."
-    }
-];
-
-const PetCard = ({ pet, canEdit, handleEdit }) => {
+const PetCard = ({ pet, canEdit, handleEdit, handleDelete }) => {
     return (
         <div className="group bg-white p-4 mb-4 rounded-md shadow-md">
             <div className="flex items-start justify-between mb-4">
@@ -112,21 +11,36 @@ const PetCard = ({ pet, canEdit, handleEdit }) => {
                     <div className="text-gray-600">{pet.type}</div>
                 </div>
                 <div>
-                    <span className="font-semibold">Born: </span>{pet.birthday}
+                    <span className="font-semibold">Born: </span>
+                    {
+                        pet.birthday.split("T")[0]
+                    }
                 </div>
             </div>
             <div className="flex justify-between items-center">
                 <p>
                     {pet.bio}
                 </p>
-                <button onClick={() => handleEdit(pet.id)} className={`${canEdit ? 'group-hover:visible' : ''} invisible scale-x-[-1] m-1 px-3 py-2 text-l font-bold text-white rounded-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800`}>&#9998;</button>
+                <div>
+                    <button
+                        onClick={() => handleEdit(pet.pet_id)}
+                        className={`${canEdit ? 'group-hover:visible' : ''} invisible m-1 px-3 py-2 text-l font-bold text-white rounded-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800`}
+                    >✏️</button>
+                    <button
+                        onClick={() => handleDelete(pet)}
+                        className={`${canEdit ? 'group-hover:visible' : ''} invisible m-1 px-3 py-2 text-l font-bold text-white rounded-lg bg-gradient-to-r from-red-600 via-red-500 to-red-600 hover:from-red-500 hover:via-red-400 hover:to-red-500`}
+                    >🗑️</button>
+                </div>
             </div>
         </div >
     );
 }
 
 const EditablePetCard = ({ pet, handleCancel, handleSave }) => {
-    const [editedPet, setEditedPet] = useState({ ...pet });
+    const initValue = pet ? {
+        ...pet, birthday: new Date(pet.birthday).toISOString().split('T')[0]
+    } : { name: null, type: null, birthday: null, bio: null };
+    const [editedPet, setEditedPet] = useState(initValue);
 
     const handleInputChange = (e, field) => {
         setEditedPet((prevPet) => ({
@@ -143,14 +57,14 @@ const EditablePetCard = ({ pet, handleCancel, handleSave }) => {
                         placeholder="name"
                         type="text"
                         className="block mb-1 border-b-2 border-gray-300 focus:outline-none focus:border-blue-500"
-                        value={editedPet.name}
+                        value={editedPet?.name || ''}
                         onChange={(e) => handleInputChange(e, 'name')}
                     />
                     <input
                         placeholder="type"
                         type="text"
                         className="border-b-2 border-gray-300 focus:outline-none focus:border-blue-500"
-                        value={editedPet.type}
+                        value={editedPet?.type || ''}
                         onChange={(e) => handleInputChange(e, 'type')}
                     />
                 </div>
@@ -159,14 +73,14 @@ const EditablePetCard = ({ pet, handleCancel, handleSave }) => {
                     <input
                         type="date"
                         className="border-b-2 border-gray-300 focus:outline-none focus:border-blue-500"
-                        value={editedPet.birthday}
+                        value={editedPet?.birthday || ''}
                         onChange={(e) => handleInputChange(e, 'birthday')}
                     />
                 </div>
             </div>
             <textarea
                 placeholder="bio"
-                value={editedPet.bio}
+                value={editedPet?.bio || ''}
                 className="w-full h-20 p-2 border border-gray-300 rounded-md"
                 onChange={(e) => handleInputChange(e, 'bio')}
             />
@@ -234,9 +148,10 @@ const Profile = () => {
 
     const [pets, setPets] = useState([]);
     const [posts, setPosts] = useState([]);
+    const [user, setUser] = useState([]);
 
     //{ isError: boolean, errorMsg: string }, errorMsg only required if isError is true
-    const [error, setError] = useState();
+    const [error, setError] = useState({ isError: false, errorMsg: "" });
 
     //get data on mount
     useEffect(() => {
@@ -271,6 +186,19 @@ const Profile = () => {
 
                 const postData = await postResponse.json();
                 setPosts(postData);
+
+                const userResponse = await fetch("/api/user/current", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error("Could not load user details.");
+                }
+                const userData = await userResponse.json();
+                setUser(userData);
             } catch (error) {
                 setError({ isError: true, errorMsg: error.message });
             }
@@ -287,10 +215,30 @@ const Profile = () => {
         setCurrentlyEditingPet(null);
     }
 
+    async function handleDelete(pet) {
+        try {
+            const res = await fetch(`/api/pets/${pet.pet_id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (res.ok) {
+                //if successful delete the pet from the array to update ui
+                setPets(pets => pets.filter(p => p.pet_id !== pet.pet_id));
+            } else {
+                throw new Error("Could not delete pet.")
+            }
+        } catch (error) {
+            setError({ isError: true, errorMsg: error.message })
+        }
+    }
+
     async function handleUpdate(pet) {
         //send put request
         try {
-            const res = await fetch(`/api/pets/${pet.id}`, {
+            const res = await fetch(`/api/pets/${pet.pet_id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -303,7 +251,7 @@ const Profile = () => {
             if (res.ok) {
                 //if successful update the pet in the array to update ui
                 setPets(pets => pets.map(p => {
-                    if (p.id === pet.id) {
+                    if (p.pet_id === pet.pet_id) {
                         return pet;
                     }
                     return p;
@@ -354,13 +302,13 @@ const Profile = () => {
 
                 </div>
                 <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
-                    Full Name
+                    {user.first_name} {user.last_name}
                 </div>
                 <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
-                    username
+                    @{user.username}
                 </div>
             </div>
-            <div className="pl-4 overflow-y-auto content-center col-span-2 lg:col-span-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-l-[20px] border-l-4">
+            <div className="relative px-4 overflow-y-auto content-center col-span-2 lg:col-span-3 bg-gradient-to-r from-slate-50 to-slate-100 rounded-l-[20px] border-l-4">
                 <div className="lg:w-4/5 lg:m-auto">
                     <div className="m-5">
                         <div className="flex justify-between items-center border-b-4 border-gray-300 mb-3">
@@ -375,14 +323,17 @@ const Profile = () => {
                         {
                             pets.length > 0 ?
                                 pets.map(pet => {
-                                    if (pet.id === currentlyEditingPet) {
-                                        return <EditablePetCard key={pet.id} pet={pet} handleCancel={handleCancelEdit} handleSave={handleUpdate} />
+                                    if (pet.pet_id === currentlyEditingPet) {
+                                        return <EditablePetCard key={pet.pet_id} pet={pet} handleCancel={handleCancelEdit} handleSave={handleUpdate} />
                                     } else {
-                                        return <PetCard key={pet.id} pet={pet} handleEdit={handleEdit} canEdit={currentlyEditingPet === null} />
+                                        return <PetCard key={pet.pet_id} pet={pet} handleEdit={handleEdit} handleDelete={handleDelete} canEdit={currentlyEditingPet === null} />
                                     }
                                 })
                                 :
-                                <div className="text-gray-600 italic">no pets</div>
+                                !addingNewPet ?
+                                    <div className="text-gray-600 italic">no pets</div>
+                                    :
+                                    ''
                         }
                     </div>
                     <div className="m-5">
@@ -397,6 +348,20 @@ const Profile = () => {
                         }
                     </div>
                 </div>
+                {
+                    error.isError ?
+                        //error toast
+                        <div className="fixed m-5 bottom-0 right-0">
+                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded flex align-center" role="alert">
+                                <span className="block sm:inline"><strong className="font-bold">An Error Occurred! </strong>{error?.errorMsg}</span>
+                                <span onClick={() => setError({ isError: false })}>
+                                    <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                                </span>
+                            </div>
+                        </div>
+                        :
+                        ''
+                }
             </div>
         </div >
     );
