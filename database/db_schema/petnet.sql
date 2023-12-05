@@ -126,32 +126,25 @@ CREATE PROCEDURE create_group(
 )
 BEGIN
     DECLARE pic_fk INT;
-
-    -- Check if the group already exists
     SELECT COUNT(*) INTO @groupCount FROM petnet.group WHERE LOWER(group_name) = LOWER(p_group_name);
     IF @groupCount > 0 THEN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'Group with the same name already exists.';
     END IF;
 
-    -- Insert into media table
     IF p_group_pic IS NOT NULL THEN
         INSERT INTO media (media_url) VALUES (p_group_pic);
         SET pic_fk = LAST_INSERT_ID();
     END IF;
 
-    -- Insert into group table
     INSERT INTO petnet.group (group_pic, group_name, group_desc, admin_id)
     VALUES (pic_fk, p_group_name, p_group_desc, p_admin_id);
 
-    -- Get the last inserted group_id
     SET @group_id = LAST_INSERT_ID();
 
-    -- Insert into group_member table
     INSERT INTO group_member (group_id, user_id)
     VALUES (@group_id, p_admin_id);
 
-    -- Return the group_id
     SELECT @group_id AS group_id;
 END 
 //
