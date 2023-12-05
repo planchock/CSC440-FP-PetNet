@@ -69,6 +69,7 @@ const Group = () => {
       const response = await fetch(`/api/groups/posts/${groupId}`);
       const postData = await response.json();
       setPostsInfo(postData.posts);
+      console.log(postData.posts);
       // Handle 'memberData' based on your API response structure
     } catch (error) {
       console.error('Error fetching member information:', error.message);
@@ -197,13 +198,13 @@ const Group = () => {
                     alt="User Profile Pic"
                     className="w-10 h-10 mr-2 rounded-full"
                     />
-                </div>
+                    </div>
 
                 <div className="mb-4 text-center">
                     <div className="font-bold">
                     {post.caption}
                     </div>
-                    {post.media && (
+                    {post.media_id && (
                     <img
                         src={`/api/feed/picture/${post.post_id}`}
                         alt="Post Media"
