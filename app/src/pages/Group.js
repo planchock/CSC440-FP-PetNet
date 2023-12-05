@@ -12,6 +12,7 @@ const Group = () => {
   const [postsInfo, setPostsInfo] = useState(null);
   const [join, setJoin] = useState(null);
   const [profileBlob, setProfileBlob] = useState(null);
+  const [postOwners, setPostOwners] = useState(null);
 
   const fetchUserInfo = async () => {
     try {
@@ -33,6 +34,25 @@ const Group = () => {
             
     }
   };
+
+  const fetchPostOwners = async () => {
+    if (postsInfo) {
+      let postOwnersMap = new Map();
+      console.log('Entering loop...');
+      console.log("posts info lenght " + postsInfo.length);
+      for (let i = 0; i < postsInfo.length; i++) {
+        console.log('Fetching data for post:', postsInfo[i].post_id);
+        const response = await fetch(`/api/user/${postsInfo[i].user_id}`);
+        const posterData = await response.json();
+        console.log('Fetched data:', posterData);
+        postOwnersMap.set(postsInfo[i].post_id, posterData);
+      }
+      console.log('Exiting loop...');
+      console.log('Post owners map:', postOwnersMap);
+      setPostOwners(postOwnersMap);
+    }
+  };
+  
 
   const fetchGroupInfo = async () => {
     try {
@@ -102,6 +122,12 @@ const Group = () => {
   useEffect(() => {
     fetchMemberInfo();
   }, [join])
+
+  useEffect(() => {
+    fetchPostOwners();
+  }, [postsInfo])
+
+
 
   const updateJoin = () => {
     if (userId && groupInfo && memberInfo) {
@@ -186,7 +212,7 @@ const Group = () => {
         </div>
   
         <div className="flex-1 p-8">
-            {postsInfo && postsInfo.map((post) => (
+            {postOwners && postsInfo && postsInfo.map((post) => (
                 
                 <div
                 key={post.post_id}
@@ -198,6 +224,12 @@ const Group = () => {
                     alt="User Profile Pic"
                     className="w-10 h-10 mr-2 rounded-full"
                     />
+                                    <div>
+                  <div className="font-bold">
+                    {postOwners.get(post.post_id).first_name} {postOwners.get(post.post_id).last_name}
+                    </div>
+                    <div className="text-gray-600">@{postOwners.get(post.post_id).username}</div>
+                  </div>
                     </div>
 
                 <div className="mb-4 text-center">
