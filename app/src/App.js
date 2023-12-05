@@ -5,6 +5,7 @@ import Post from "./pages/Post";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Feed from "./pages/Feed";
+import Profile from "./pages/Profile";
 import AuthProvider from "./components/AuthProvider";
 import Groups from "./pages/Groups";
 import Group from "./pages/Group";
@@ -22,7 +23,7 @@ function App() {
             <Route path="/feed" element={<Feed />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/group" element={<Group />} />
-            <Route path="/profile" element={<h1>profile page</h1>} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </Router>
       </AuthProvider>

@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS `pet` (
   `name` varchar(50) NOT NULL,
   `type` varchar(50) NOT NULL,
   `user_id` int(11) unsigned NOT NULL,
+  `birthday` date NOT NULL,
+  `bio` VARCHAR(250) NOT NULL,
   PRIMARY KEY (`pet_id`),
   CONSTRAINT `FK_USER_ID` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
