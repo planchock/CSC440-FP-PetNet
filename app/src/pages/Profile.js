@@ -315,7 +315,7 @@ const Profile = () => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const imageBlob = new Blob([reader.result], { type: file.type });
-                    setMediaBlob(imageBlob);
+                    setImageBlob(imageBlob);
                 };
                 reader.readAsArrayBuffer(file);
             }
@@ -323,7 +323,22 @@ const Profile = () => {
     };
 
     async function handleSaveProfile() {
-
+        try {
+            const res = await fetch(`/api/user/profile-picture`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    file: imageBlob
+                })
+            });
+            if (!res.ok) {
+                throw new Error("Could not edit profile picture.")
+            }
+        } catch (error) {
+            setError({ isError: true, errorMsg: error.message })
+        }
     }
 
     return (

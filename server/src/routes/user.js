@@ -32,6 +32,7 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
     return res.status(400).json({ msg: "No signed-in user" });
   }
 
+  //this is actually passed in as the user id
   const user = req.params.user;
 
   try {
@@ -53,7 +54,6 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
 
 router.put("/profile-picture", auth, async (req, res) => {
   const userId = req.user.user_id;
-  const { mediaId } = req.body; // Assuming you send the media_id in the request body
 
   if (!userId) {
     return res.status(400).json({ msg: "No signed-in user" });
@@ -61,7 +61,17 @@ router.put("/profile-picture", auth, async (req, res) => {
 
   try {
     // Update the user's profile_pic field with the selected media_id
-    await db.query("UPDATE user SET profile_pic = ? WHERE user_id = ?", [mediaId, userId]);
+
+    const fileBuffer = req.file ? req.file.buffer : null;
+    if (fileBuffer != '' && fileBuffer !== null) {
+      const { results: rows } = await db.query(
+        "INSERT INTO media (media_url) VALUES(?)", [fileBuffer]
+      );
+      const mediaId = rows.insertId;
+      await db.query("UPDATE user SET profile_pic = ? WHERE user_id = ?", [mediaId, userId]);
+    } else {
+      throw new Error("Failed to set pfp.")
+    }
 
     return res.status(200).json({ msg: "Profile picture set successfully" });
   } catch (err) {
@@ -80,11 +90,11 @@ router.get("/:user", auth, async (req, res) => {
   try {
     const userInfo = await db.query("SELECT user_id, first_name, last_name, username, profile_pic FROM user WHERE user_id = ?", [userId]);
     const user = userInfo.results;
-    
+
     if (user.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
-    
+
     return res.status(200).json(user[0]);
   } catch (err) {
     console.error(err);
