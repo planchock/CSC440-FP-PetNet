@@ -101,3 +101,17 @@ BEGIN
 END;
 //
 DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE create_comment (
+  IN p_comment_text VARCHAR(255),
+  IN p_post_id INT,
+  IN p_user_id INT
+)
+BEGIN
+  INSERT INTO comment (comment_text, post_id, user_id)
+  VALUES (p_comment_text, p_post_id, p_user_id);
+END //
+
+DELIMITER ;

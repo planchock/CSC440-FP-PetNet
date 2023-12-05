@@ -51,17 +51,16 @@ function Feed() {
         text: newComment,
       }),
     })
-      .then((res) => {
-        if (res.status === 200) {
-          alert("Comment created successfully.");
-        } else {
-          alert("Invalid comment.");
-        }
-      })
-      .catch((err) => {
-        alert("Invalid comment.");
-      });
-
+    .then((res) => {
+      if (res.status === 200) {
+        alert("Comment created successfully.");
+      } else {
+        alert("Invalid comment or you already commented that.");
+      }
+    }).catch(() => {
+      alert("Error occurred.");
+    });
+    
     setNewComment("");
     setPostToCommentOn(null);
     setShowWriteComment(false);
