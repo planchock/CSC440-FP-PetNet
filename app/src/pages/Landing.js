@@ -1,6 +1,6 @@
 import "tailwindcss/tailwind.css";
 import { Link } from "react-router-dom";
-import Header from "../components/Header";
+import UnautheticatedHeader from "../components/UnauthenticatedHeader";
 import { useAuth } from "../components/AuthProvider";
 
 function Landing() {
@@ -12,7 +12,7 @@ function Landing() {
   }
 
   return (
-    <Header>
+    <UnautheticatedHeader>
       <div className="flex items-center justify-center max-w-5xl mx-auto">
         <div className="flex items-center space-x-40">
           <div className="block">
@@ -51,7 +51,7 @@ function Landing() {
           <img src="/dog.webp" width={450} className="w-[450px] h-[750px]" />
         </div>
       </div>
-    </Header>
+    </UnautheticatedHeader>
   );
 }
 

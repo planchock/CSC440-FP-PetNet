@@ -1,7 +1,7 @@
 import "tailwindcss/tailwind.css";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../components/AuthProvider";
-import FeedHeader from "../components/FeedHeader";
+import AuthenticatedHeader from "../components/AuthenticatedHeader";
 
 function Feed() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -12,17 +12,12 @@ function Feed() {
   const [showWriteComment, setShowWriteComment] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [postToCommentOn, setPostToCommentOn] = useState(null);
-  const [profilePic, setProfilePic] = useState(null);
 
   const [groupInfo, setGroupInfo] = useState({
-    group_id: '',
-    group_name: '',
+    group_id: "",
+    group_name: "",
   });
   const [groups, setGroups] = useState([]);
-
-  const [userInfo, setUserInfo] = useState({
-    username: '',
-  });
 
   const toggleGroupDropdown = () => {
     setGroupDropdownOpen(!isGroupDropdownOpen);
@@ -52,7 +47,7 @@ function Feed() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         text: newComment,
       }),
     })
@@ -65,7 +60,7 @@ function Feed() {
     }).catch(() => {
       alert("Error occurred.");
     });
-
+    
     setNewComment("");
     setPostToCommentOn(null);
     setShowWriteComment(false);
@@ -83,17 +78,16 @@ function Feed() {
   useEffect(() => {
     const fetchDropdownContent = async () => {
       try {
-        const response = await fetch('/api/feed/groups');
+        const response = await fetch("/api/feed/groups");
         const data = await response.json();
         setGroups(data);
       } catch (error) {
         console.error(error.message);
       }
-    }
-  
+    };
+
     fetchDropdownContent();
   }, []);
-
 
   const getFeed = () => {
     fetch("/api/feed/current", {
@@ -111,11 +105,15 @@ function Feed() {
       })
       .then(async (data) => {
         // Set posts with dynamic image URLs
-        const postsWithImages = await Promise.all(data.map(async (post) => ({
-          ...post,
-          mediaUrl: post.media ? await fetchPostImage(post.post_id) : null,
-          userMedia: post.user_media ? await fetchProfilePic(post.user_id) : null,
-        })));
+        const postsWithImages = await Promise.all(
+          data.map(async (post) => ({
+            ...post,
+            mediaUrl: post.media ? await fetchPostImage(post.post_id) : null,
+            userMedia: post.user_media
+              ? await fetchProfilePic(post.user_id)
+              : null,
+          }))
+        );
         setPosts(postsWithImages);
         filterPosts();
       })
@@ -137,63 +135,47 @@ function Feed() {
       return;
     } else {
       // Filter posts based on selected group
-      const filteredPosts = posts.filter((post) => post.group_id === groupInfo.group_id);
+      const filteredPosts = posts.filter(
+        (post) => post.group_id === groupInfo.group_id
+      );
       setPosts(filteredPosts);
     }
   };
 
-  //get user info to fill in header
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const response = await fetch('/api/user/current');
-        const userData = await response.json();
-        setUserInfo({
-          username: userData.username,
-        });
-        const picture = await fetch('/api/user/profile-picture/'+userData.user_id);
-        const pictureData = await picture.blob();
-        const url = URL.createObjectURL(new Blob([pictureData]));
-        setProfilePic(url);
-      } catch (error) {
-        console.error(error.message);
-      }
-    }
-
-    fetchUserInfo();
-  }, []);
-
   const fetchPostImage = async (postId) => {
     try {
-      const response = await fetch(`/api/feed/picture/${postId}`); 
+      const response = await fetch(`/api/feed/picture/${postId}`);
       const data = await response.blob();
       const url = URL.createObjectURL(new Blob([data]));
       return url;
     } catch (error) {
-      console.error('Error fetching image data:', error.message);
-      return null
+      console.error("Error fetching image data:", error.message);
+      return null;
     }
   };
 
   const fetchProfilePic = async (userId) => {
     try {
-      const response = await fetch(`/api/user/profile-picture/${userId}`); 
+      const response = await fetch(`/api/user/profile-picture/${userId}`);
       const data = await response.blob();
       const url = URL.createObjectURL(new Blob([data]));
       return url;
     } catch (error) {
-      console.error('Error fetching image data:', error.message);
-      return null
+      console.error("Error fetching image data:", error.message);
+      return null;
     }
   };
 
   return (
     <div>
-      <FeedHeader username={userInfo.username} user_media={profilePic}/>
-      <div className="max-w-4xl mx-auto flex">
+      <AuthenticatedHeader />
+      <div className="flex max-w-4xl mx-auto">
         {/* Left Side - Group Selection */}
         <div className="w-1/5 px-6">
-          <button onClick={toggleGroupDropdown} className="bg-blue-500 text-white px-4 py-2 rounded">
+          <button
+            onClick={toggleGroupDropdown}
+            className="px-4 py-2 text-white bg-blue-500 rounded"
+          >
             {groupInfo.group_name ? groupInfo.group_name : "group"}
           </button>
 
@@ -203,13 +185,21 @@ function Feed() {
                 <button
                   key={group.group_id}
                   className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
-                  onClick={() => setGroupInfo({ group_id: group.group_id, group_name: group.group_name })}
+                  onClick={() =>
+                    setGroupInfo({
+                      group_id: group.group_id,
+                      group_name: group.group_name,
+                    })
+                  }
                 >
                   {group.group_name}
                 </button>
               ))}
 
-              <button className="block px-4 py-2 text-gray-800 hover:bg-gray-200" onClick={() => setGroupInfo({group_id: '', group_name: ''})}>
+              <button
+                className="block px-4 py-2 text-gray-800 hover:bg-gray-200"
+                onClick={() => setGroupInfo({ group_id: "", group_name: "" })}
+              >
                 None
               </button>
             </div>
@@ -221,13 +211,13 @@ function Feed() {
           {posts.map((post) => (
             <div
               key={post.post_id}
-              className="bg-white p-4 mb-4 rounded-md shadow-md"
+              className="p-4 mb-4 bg-white rounded-md shadow-md"
             >
               <div className="flex items-center mb-4">
                 <img
                   src={`/api/user/profile-picture/${post.user_id}`}
                   alt="User Profile Pic"
-                  className="w-10 h-10 rounded-full mr-2"
+                  className="w-10 h-10 mr-2 rounded-full"
                 />
                 <div>
                   <div className="font-bold">
@@ -238,34 +228,32 @@ function Feed() {
               </div>
 
               <div className="mb-4 text-center">
-                <div className="font-bold">
-                  {post.caption}
-                </div>
+                <div className="font-bold">{post.caption}</div>
                 {post.media && (
                   <img
                     src={`/api/feed/picture/${post.post_id}`}
                     alt="Post Media"
-                    className="w-full h-40 object-cover mb-2 rounded-md"
+                    className="object-cover w-full h-40 mb-2 rounded-md"
                   />
                 )}
                 <p>{post.text}</p>
               </div>
 
               {post.group_name && (
-                <div className="text-sm text-gray-500 ml-auto">
+                <div className="ml-auto text-sm text-gray-500">
                   in group: {post.group_name}
                 </div>
               )}
 
               <div className="flex items-center justify-between mt-4">
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  className="px-4 py-2 text-white bg-blue-500 rounded"
                   onClick={() => openCommentsModal(post.post_id)}
                 >
                   See Comments
                 </button>
                 <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
+                  className="px-4 py-2 text-white bg-blue-500 rounded"
                   onClick={() => openWriteCommentModal(post.post_id)}
                 >
                   Leave a comment
@@ -278,15 +266,15 @@ function Feed() {
 
       {/* Show Comments Modal */}
       {showComments && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75">
-          <div className="bg-white p-4 rounded-md">
+        <div className="fixed top-0 left-0 flex items-center justify-center w-full h-full bg-gray-800 bg-opacity-75">
+          <div className="p-4 bg-white rounded-md">
             <button
               className="float-right text-gray-600"
               onClick={closeCommentsModal}
             >
               X
             </button>
-            <h2 className="text-xl font-bold mb-4">Comments</h2>
+            <h2 className="mb-4 text-xl font-bold">Comments</h2>
             <ul>
               {comments.map((comment, index) => (
                 <li key={index} className="mb-2">
@@ -300,22 +288,22 @@ function Feed() {
 
       {/* Show Write Comment Modal */}
       {showWriteComment && (
-        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-gray-800 bg-opacity-75">
-          <div className="bg-white p-4 rounded-md">
+        <div className="fixed top-0 left-0 flex items-center justify-center w-full h-full bg-gray-800 bg-opacity-75">
+          <div className="p-4 bg-white rounded-md">
             <button
               className="float-right text-gray-600"
               onClick={closeWriteCommentModal}
             >
               X
             </button>
-            <h2 className="text-xl font-bold mb-4">Write a comment</h2>
+            <h2 className="mb-4 text-xl font-bold">Write a comment</h2>
             <input
               type="text"
               placeholder="comment here"
               onChange={(e) => setNewComment(e.target.value)}
             />
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded"
+              className="px-4 py-2 text-white bg-blue-500 rounded"
               onClick={() => writeComment()}
             >
               Submit
@@ -323,7 +311,6 @@ function Feed() {
           </div>
         </div>
       )}
-
     </div>
   );
 }

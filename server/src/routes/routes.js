@@ -11,9 +11,9 @@ const feedRouter = require("./feed");
 router.use("/auth", authRouter);
 router.use("/user", userRouter);
 router.use("/feed", feedRouter);
+router.use("/groups", groupRouter);
 
 router.use(postRouter);
 router.use(petRouter);
-router.use(groupRouter);
 
 module.exports = router;
