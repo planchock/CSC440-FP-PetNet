@@ -337,6 +337,7 @@ const Profile = () => {
             if (!res.ok) {
                 throw new Error("Could not edit profile picture.")
             }
+            setIsEditingProfile(false);
         } catch (error) {
             setError({ isError: true, errorMsg: error.message })
         }

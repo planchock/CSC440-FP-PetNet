@@ -45,6 +45,7 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
     );
 
     if (pictureInfo && pictureInfo.length > 0) {
+      console.log(pictureInfo)
       const picture = pictureInfo[0].media_url;
       return res.status(200).send(picture);
     } else {
