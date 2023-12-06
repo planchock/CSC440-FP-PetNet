@@ -1,23 +1,32 @@
-import logo from "./logo.svg";
-import "./App.css";
+import "tailwindcss/tailwind.css";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
+import Post from "./pages/Post";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Feed from "./pages/Feed";
+import Profile from "./pages/Profile";
+import AuthProvider from "./components/AuthProvider";
+import Groups from "./pages/Groups";
+import Group from "./pages/Group";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/post" element={<Post />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/groups" element={<Groups />} />
+            <Route path="/group" element={<Group />} />
+            <Route path="/profile" element={<Profile />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </div>
   );
 }

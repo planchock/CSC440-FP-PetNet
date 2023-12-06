@@ -5,15 +5,19 @@ services:
     ports:
       - 3000:3000
     volumes:
+      - /app/node_modules
       - ./app/src:/app/src
-  
+
   server:
     build:
       context: ./server/
     ports:
       - 3001:3001
     volumes:
-      - ./server:/app
+      - /server/node_modules
+      - ./server/src:/server/src
+    env_file:
+      - .env
 
   proxy:
     image: nginx:latest
@@ -22,3 +26,17 @@ services:
       - ./proxy/nginx.conf:/etc/nginx/templates/default.conf.template
     ports:
       - "80:80"
+
+  database:
+    image: mariadb:10.6
+    restart: unless-stopped
+    ports:
+      # Make the DB accessible from outside of the Docker network if needed
+      - 3307:3306
+    volumes:
+      # Mount a volume for mariadb's persistent files for lifecylce outside of stack
+      - "./database/data:/var/lib/mysql"
+      # Mount the db_schema directory into the container to be auto-read and created in the new db
+      - "./database/db_schema:/docker-entrypoint-initdb.d"
+    env_file:
+      - .env
