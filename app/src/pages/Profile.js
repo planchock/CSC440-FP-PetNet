@@ -378,12 +378,6 @@ const Profile = () => {
                     <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
                         @{user.username}
                     </div>
-                    <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
-                        {user.pet_count} pets
-                    </div>
-                    <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
-                        {user.post_count} posts
-                    </div>
                     {
                         isEditingProfile ?
                             <button onClick={handleSaveProfile} className="m-1 px-5 py-1 text-l font-bold text-white rounded-lg drop-shadow-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800">
