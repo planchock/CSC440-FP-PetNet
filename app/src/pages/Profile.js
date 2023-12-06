@@ -312,6 +312,8 @@ const Profile = () => {
                 reader.onloadend = () => {
                     const imageBlob = new Blob([reader.result], { type: file.type });
                     setImageBlob(imageBlob);
+                    const url = URL.createObjectURL(new Blob([imageBlob]));
+                    setPfpUrl(url);
                 };
                 reader.readAsArrayBuffer(file);
             }
@@ -340,26 +342,29 @@ const Profile = () => {
     return (
         <div className="grid grid-cols-3 lg:grid-cols-4 h-screen">
             <div className="col-span-1 flex flex-col items-center mt-[15vh] gap-2">
-                <div className="rounded-full bg-gray-600 h-40 w-40">
-                    {pfpUrl ? (
-                        <img src={pfpUrl} alt="Profile Picture" className="h-full w-full object-cover rounded-full" />
-                    ) : (
-                        <div className="p-1 h-full w-full text-center flex items-center justify-center text-gray-300 text-xl">
-                            No Profile Picture
-                        </div>
-                    )}
+                <div className="rounded-full bg-gray-600 h-40 w-40 relative">
+                    {
+                        isEditingProfile ?
+                            <div className="h-full w-full flex items-center justify-center">
+                                <input
+                                    type="file"
+                                    onChange={(e) => handleMedia(e)}
+                                    className="text-lg opacity-0 absolute inset-0 cursor-pointer"
+                                    accept=".jpeg, .jpg, .png"
+                                />
+                                <div className="p-1 italic text-center text-gray-300 text-xl">
+                                    click here to select picture
+                                </div>
+                            </div>
+                            :
+                            pfpUrl ?
+                                <img src={pfpUrl} alt="Profile Picture" className="h-full w-full object-cover rounded-full" />
+                                :
+                                <div className="p-1 text-center h-full w-full flex items-center justify-center text-gray-300 text-xl">
+                                    No Profile Picture
+                                </div>
+                    }
                 </div>
-                {
-                    isEditingProfile ?
-                        <input
-                            type="file"
-                            onChange={(e) => handleMedia(e)}
-                            className="text-lg"
-                            accept=".jpeg, .jpg, .png"
-                        />
-                        :
-                        ''
-                }
                 <div className="bg-gray-100 p-2 text-xl font-bold border-2 border-gray-900 rounded-lg drop-shadow-lg">
                     {user.first_name} {user.last_name}
                 </div>
