@@ -70,22 +70,21 @@ router.get("/:user", auth, async (req, res) => {
   }
 });
 
-router.get("/following", auth, async (req, res) => {
+router.get("/following/list", auth, (req, res) => {
   const userId = req.user.user_id;
 
   if (!userId) {
     return res.status(400).json({ msg: "No signed-in user" });
   }
 
-  try {
-    const userInfo = await db.query("SELECT followee_id FROM follow WHERE follower_id = ?", [userId]);
-    const users = userInfo.results;
-    
-    return res.status(200).json(users);
-  } catch (err) {
+  db.query("SELECT followee_id FROM follow WHERE follower_id = ?", [userId]
+  ).then(results => {
+    const data = results.results.map(item => item);
+    return res.status(200).json(data);
+  }).catch((err) => {
     console.error(err);
     return res.status(500).json({ msg: "An error occurred" });
-  }
+  });
 });
 
 router.post("/follow/:userToFollow", auth, async (req, res) => {

@@ -13,6 +13,7 @@ const Group = () => {
   const [join, setJoin] = useState(null);
   const [profileBlob, setProfileBlob] = useState(null);
   const [postOwners, setPostOwners] = useState(null);
+  const [followList, setFollowList] = useState([]);
 
   const fetchUserInfo = async () => {
     try {
@@ -96,12 +97,25 @@ const Group = () => {
     }
   };
 
+  const fetchFollowList = async () => {
+    try {
+      const response = await fetch('/api/user/following/list');
+      const followListData = await response.json();
+      
+      const followeeIds = followListData.map(item => item.followee_id);
+      setFollowList(followeeIds);
+    } catch (error) {
+      console.error('Error fetching follow list:', error.message);
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         await fetchGroupInfo();
         await fetchMemberInfo();
         await fetchPostsInfo();
+        await fetchFollowList();
   
       } catch (error) {
         console.error('Error fetching data:', error.message);
@@ -126,8 +140,6 @@ const Group = () => {
   useEffect(() => {
     fetchPostOwners();
   }, [postsInfo])
-
-
 
   const updateJoin = () => {
     if (userId && groupInfo && memberInfo) {
@@ -171,9 +183,38 @@ const Group = () => {
   const createPost = async () => {
     window.location.href = `/post`;
   }
-  
-  
 
+  //follow or unfollow
+  const followUser = async (followeeId) => {
+    try {
+      if (followList.includes(followeeId)) {
+        // If user is already followed, unfollow
+        const response = await fetch(`/api/user/follow/${followeeId}`, {
+          method: 'DELETE',
+        });
+        if (response.ok) {
+          fetchFollowList();
+          alert('Unfollowed successfully');
+        } else {
+          alert('Failed to unfollow');
+        }
+      } else {
+        // If user is not followed, follow
+        const response = await fetch(`/api/user/follow/${followeeId}`, {
+          method: 'POST',
+        });
+        if (response.ok) {
+          fetchFollowList();
+          alert('Followed successfully');
+        } else {
+          alert('Failed to follow');
+        }
+      }
+    } catch (error) {
+      console.error('Error following/unfollowing user:', error.message);
+    }
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-r from-indigo-200 via-red-200 to-yellow-100">
       <AuthenticatedHeader />
@@ -244,6 +285,14 @@ const Group = () => {
                     />
                     )}
                     <p>{post.text}</p>
+                    {post.user_id !== userId && (
+                      <button
+                        className={`px-4 py-2 text-white bg-blue-500 rounded`}
+                        onClick={() => followUser(post.user_id)}
+                      >
+                        {followList.includes(post.user_id) ? 'Unfollow' : 'Follow'}
+                      </button>
+                    )}
                 </div>
 
                 {post.group_name && (
@@ -251,21 +300,6 @@ const Group = () => {
                     in group: {post.group_name}
                     </div>
                 )}
-
-                {/* <div className="flex items-center justify-between mt-4">
-                    <button
-                    className="px-4 py-2 text-white bg-blue-500 rounded"
-                    // onClick={() => openCommentsModal(post.post_id)}
-                    >
-                    See Comments
-                    </button>
-                    <button
-                    className="px-4 py-2 text-white bg-blue-500 rounded"
-                    // onClick={() => openWriteCommentModal(post.post_id)}
-                    >
-                    Leave a comment
-                    </button>
-                </div> */}
                 </div>
             ))}
           
