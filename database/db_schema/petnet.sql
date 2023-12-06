@@ -105,6 +105,18 @@ END;
 DELIMITER ;
 
 DELIMITER //
+CREATE TRIGGER after_user_pet_deletion
+AFTER DELETE ON `pet`
+FOR EACH ROW
+BEGIN
+  UPDATE `user`
+  SET `pet_count` = `pet_count` - 1
+  WHERE `user_id` = OLD.`user_id`;
+END;
+//
+DELIMITER ;
+
+DELIMITER //
 CREATE PROCEDURE create_group(
     IN p_group_name VARCHAR(255),
     IN p_group_desc TEXT,
