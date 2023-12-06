@@ -276,7 +276,7 @@ const Profile = () => {
     }
 
     async function handleAddNewPet(pet) {
-        //send post request
+        //send post requestx
         try {
             const res = await fetch(`/api/pets`, {
                 method: "POST",
@@ -310,9 +310,10 @@ const Profile = () => {
             if (file.type === "image/jpeg" || file.type === "image/png") {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    const imageBlob = new Blob([reader.result], { type: file.type });
+                    const imageBlob = new Blob(new Uint8Array([reader.result]), { type: file.type });
                     setImageBlob(imageBlob);
                     const url = URL.createObjectURL(new Blob([imageBlob]));
+                    console.log(url);
                     setPfpUrl(url);
                 };
                 reader.readAsArrayBuffer(file);
@@ -322,22 +323,22 @@ const Profile = () => {
 
     async function handleSaveProfile() {
         try {
-            const res = await fetch(`/api/user/profile-picture`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    file: imageBlob
-                })
-            });
-            if (!res.ok) {
-                throw new Error("Could not edit profile picture.")
-            }
+          const formData = new FormData();
+          formData.append('group_pic', imageBlob, 'profile-picture.jpeg');
+      
+          const res = await fetch(`/api/user/profile-picture`, {
+            method: "PUT",
+            body: formData,
+          });
+      
+          if (!res.ok) {
+            throw new Error("Could not edit profile picture.");
+          }
         } catch (error) {
-            setError({ isError: true, errorMsg: error.message })
+          setError({ isError: true, errorMsg: error.message });
         }
-    }
+      }
+      
 
     return (
         <div className="grid grid-cols-3 lg:grid-cols-4 h-screen">

@@ -2,6 +2,12 @@ const express = require("express");
 const router = express.Router();
 const auth = require("../middleware/auth");
 const db = require("../db/database");
+const multer = require('multer');
+
+
+const storage = multer.memoryStorage(); // Use memory storage for storing the file as a buffer
+const upload = multer({ storage: storage });
+
 
 router.get("/current", auth, async (req, res) => {
   const userId = req.user.user_id;
@@ -53,7 +59,7 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
   }
 });
 
-router.put("/profile-picture", auth, async (req, res) => {
+router.put("/profile-picture", upload.single('group_pic'), auth, async (req, res) => {
   const userId = req.user.user_id;
 
   if (!userId) {
@@ -63,7 +69,6 @@ router.put("/profile-picture", auth, async (req, res) => {
   try {
     // Update the user's profile_pic field with the selected media_id
     const fileBuffer = req.file ? req.file.buffer : null;
-    console.log(req.file)
     if (fileBuffer && fileBuffer.length > 0) {
       const { results: rows } = await db.query(
         "INSERT INTO media (media_url) VALUES (?)", [fileBuffer]
