@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const PetCard = ({ pet, canEdit, handleEdit, handleDelete }) => {
+const PetCard = ({ pet, canEdit, handleEdit }) => {
     return (
         <div className="group bg-white p-4 mb-4 rounded-md shadow-md">
             <div className="flex items-start justify-between mb-4">
@@ -26,10 +26,6 @@ const PetCard = ({ pet, canEdit, handleEdit, handleDelete }) => {
                         onClick={() => handleEdit(pet.pet_id)}
                         className={`${canEdit ? 'group-hover:visible' : ''} invisible m-1 px-3 py-2 text-l font-bold text-white rounded-lg bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 hover:from-gray-800 hover:via-gray-700 hover:to-gray-800`}
                     >✏️</button>
-                    <button
-                        onClick={() => handleDelete(pet)}
-                        className={`${canEdit ? 'group-hover:visible' : ''} invisible m-1 px-3 py-2 text-l font-bold text-white rounded-lg bg-gradient-to-r from-red-600 via-red-500 to-red-600 hover:from-red-500 hover:via-red-400 hover:to-red-500`}
-                    >🗑️</button>
                 </div>
             </div>
         </div >
@@ -150,6 +146,7 @@ const Profile = () => {
     const [posts, setPosts] = useState([]);
     const [user, setUser] = useState([]);
 
+    const [pfpUrl, setPfpUrl] = useState('');
     const [imageBlob, setImageBlob] = useState([]);
     const [isEditingProfile, setIsEditingProfile] = useState(false);
 
@@ -162,6 +159,27 @@ const Profile = () => {
 
         const fetchData = async () => {
             try {
+                const userResponse = await fetch("/api/user/current", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!userResponse.ok) {
+                    throw new Error("Could not load user details.");
+                }
+                const userData = await userResponse.json();
+                setUser(userData);
+
+                const pfpResponse = await fetch(`/api/user/profile-picture/${userData.user_id}`);
+                if (!pfpResponse.ok) {
+                    throw new Error("Could not load user profile picture.");
+                }
+                const imgData = await pfpResponse.blob();
+                const url = URL.createObjectURL(new Blob([imgData]));
+                setPfpUrl(url);
+
                 const petResponse = await fetch("/api/pets", {
                     method: "GET",
                     headers: {
@@ -189,28 +207,6 @@ const Profile = () => {
 
                 const postData = await postResponse.json();
                 setPosts(postData);
-
-                const userResponse = await fetch("/api/user/current", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-
-                if (!userResponse.ok) {
-                    throw new Error("Could not load user details.");
-                }
-                const userData = await userResponse.json();
-                console.log(userData)
-                setUser(userData);
-
-                const pfpResponse = await fetch(`/api/user/profile-picture/${userData.user_id}`);
-                if (!pfpResponse.ok) {
-                    throw new Error("Could not load user profile picture.");
-                }
-                const imgData = await pfpResponse.blob();
-                const url = URL.createObjectURL(new Blob([imgData]));
-                setPfpUrl(url);
             } catch (error) {
                 setError({ isError: true, errorMsg: error.message });
             }
@@ -227,25 +223,25 @@ const Profile = () => {
         setCurrentlyEditingPet(null);
     }
 
-    async function handleDelete(pet) {
-        try {
-            const res = await fetch(`/api/pets/${pet.pet_id}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
+    // async function handleDelete(pet) {
+    //     try {
+    //         const res = await fetch(`/api/pets/${pet.pet_id}`, {
+    //             method: "DELETE",
+    //             headers: {
+    //                 "Content-Type": "application/json",
+    //             },
+    //         });
 
-            if (res.ok) {
-                //if successful delete the pet from the array to update ui
-                setPets(pets => pets.filter(p => p.pet_id !== pet.pet_id));
-            } else {
-                throw new Error("Could not delete pet.")
-            }
-        } catch (error) {
-            setError({ isError: true, errorMsg: error.message })
-        }
-    }
+    //         if (res.ok) {
+    //             //if successful delete the pet from the array to update ui
+    //             setPets(pets => pets.filter(p => p.pet_id !== pet.pet_id));
+    //         } else {
+    //             throw new Error("Could not delete pet.")
+    //         }
+    //     } catch (error) {
+    //         setError({ isError: true, errorMsg: error.message })
+    //     }
+    // }
 
     async function handleUpdate(pet) {
         //send put request
@@ -345,7 +341,13 @@ const Profile = () => {
         <div className="grid grid-cols-3 lg:grid-cols-4 h-screen">
             <div className="col-span-1 flex flex-col items-center mt-[15vh] gap-2">
                 <div className="rounded-full bg-gray-600 h-40 w-40">
-
+                    {pfpUrl ? (
+                        <img src={pfpUrl} alt="Profile Picture" className="h-full w-full object-cover rounded-full" />
+                    ) : (
+                        <div className="p-1 h-full w-full text-center flex items-center justify-center text-gray-300 text-xl">
+                            No Profile Picture
+                        </div>
+                    )}
                 </div>
                 {
                     isEditingProfile ?
@@ -399,7 +401,7 @@ const Profile = () => {
                                     if (pet.pet_id === currentlyEditingPet) {
                                         return <EditablePetCard key={pet.pet_id} pet={pet} handleCancel={handleCancelEdit} handleSave={handleUpdate} />
                                     } else {
-                                        return <PetCard key={pet.pet_id} pet={pet} handleEdit={handleEdit} handleDelete={handleDelete} canEdit={currentlyEditingPet === null} />
+                                        return <PetCard key={pet.pet_id} pet={pet} handleEdit={handleEdit} canEdit={currentlyEditingPet === null} />
                                     }
                                 })
                                 :

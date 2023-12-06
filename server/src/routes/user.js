@@ -36,10 +36,12 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
   const user = req.params.user;
 
   try {
+    console.log("hi1")
     const pictureInfo = await db.query(
       "SELECT media_url FROM media INNER JOIN user ON user.profile_pic = media.media_id WHERE user.user_id = ?",
       [user]
     );
+    console.log("hi")
     if (results && results.length > 0) {
       const picture = pictureInfo.results[0].media_url;
       return res.status(200).send(picture);
