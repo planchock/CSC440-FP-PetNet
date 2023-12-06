@@ -173,7 +173,7 @@ const Profile = () => {
                 setUser(userData);
 
                 const pfpResponse = await fetch(`/api/user/profile-picture/${userData.user_id}`);
-                if (!pfpResponse.ok) {
+                if (!pfpResponse.ok && pfpResponse.status != 404) {
                     throw new Error("Could not load user profile picture.");
                 }
                 const imgData = await pfpResponse.blob();
@@ -358,7 +358,7 @@ const Profile = () => {
                             </div>
                             :
                             pfpUrl ?
-                                <img src={pfpUrl} alt="Profile Picture" className="h-full w-full object-cover rounded-full" />
+                                <img src={pfpUrl} className="text-center h-full w-full object-cover rounded-full" />
                                 :
                                 <div className="p-1 text-center h-full w-full flex items-center justify-center text-gray-300 text-xl">
                                     No Profile Picture

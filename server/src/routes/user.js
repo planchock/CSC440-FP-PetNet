@@ -36,20 +36,19 @@ router.get("/profile-picture/:user", auth, async (req, res) => {
   const user = req.params.user;
 
   try {
-    console.log("hi1")
     const pictureInfo = await db.query(
       "SELECT media_url FROM media INNER JOIN user ON user.profile_pic = media.media_id WHERE user.user_id = ?",
       [user]
     );
-    console.log("hi")
-    if (results && results.length > 0) {
-      const picture = pictureInfo.results[0].media_url;
+
+    if (pictureInfo && pictureInfo.length > 0) {
+      const picture = pictureInfo[0].media_url;
       return res.status(200).send(picture);
     } else {
       return res.status(404).json({ msg: "User has no profile picture" });
     }
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return res.status(500).json({ msg: "An error occurred" });
   }
 });
@@ -63,11 +62,11 @@ router.put("/profile-picture", auth, async (req, res) => {
 
   try {
     // Update the user's profile_pic field with the selected media_id
-
     const fileBuffer = req.file ? req.file.buffer : null;
-    if (fileBuffer != '' && fileBuffer !== null) {
+    console.log(req.file)
+    if (fileBuffer && fileBuffer.length > 0) {
       const { results: rows } = await db.query(
-        "INSERT INTO media (media_url) VALUES(?)", [fileBuffer]
+        "INSERT INTO media (media_url) VALUES (?)", [fileBuffer]
       );
       const mediaId = rows.insertId;
       await db.query("UPDATE user SET profile_pic = ? WHERE user_id = ?", [mediaId, userId]);
